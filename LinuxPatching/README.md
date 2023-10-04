@@ -1,4 +1,3 @@
----
 ```markdown
 # Linux Patching Scripts
 
@@ -56,4 +55,3 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 ## License
 This project is licensed under the MIT License - see the LICENSE.md file for details.
 
----
