@@ -6,7 +6,9 @@ import subprocess
 from datetime import datetime
 import platform
 import sys
-import urllib2
+import urllib.request
+
+CHANGE_NUMBER = "CHG012345"  # Global variable for the change number
 
 class PrePatchCheck:
     def __init__(self, change_number):
@@ -15,16 +17,7 @@ class PrePatchCheck:
         self.setup_logging_and_output_paths()
         self.start_time = datetime.now()
         self.failed_functions = []
-        self.identify_os_and_package_manager()
         self.manual_intervention_needed = False
-
-    def check_python_version(self):
-        python_version = sys.version_info
-        if python_version < (3, 0):
-            print("Python version 3.0 or higher is required. Exiting.")
-            sys.exit(1)
-        else:
-            print("Python version {}.{} detected.".format(python_version.major, python_version.minor))
 
     def load_config(self):
         try:
@@ -41,7 +34,8 @@ class PrePatchCheck:
         self.debug_log_filepath = os.path.join(self.output_directory, "debug.log")
         self.pre_patch_report_filepath = os.path.join(self.output_directory, "pre-patch.report")
         
-        os.makedirs(self.output_directory, exist_ok=True)
+        if not os.path.exists(self.output_directory):
+            os.makedirs(self.output_directory)
         logging.basicConfig(filename=self.debug_log_filepath, level=logging.DEBUG)
         open(self.debug_log_filepath, 'w').close()
         open(self.pre_patch_report_filepath, 'w').close()
@@ -51,8 +45,8 @@ class PrePatchCheck:
             stat = os.statvfs('/var')
             free_space_gb = (stat.f_frsize * stat.f_bavail) / (1024 * 1024 * 1024)
             self.csv_output.append("{:.2f} GB".format(free_space_gb))
-            if free_space_gb < 2:
-                self.failed_checks.append("Disk space less than 2GB")
+            if free_space_gb < 2.5:
+                self.failed_checks.append("Disk space less than 2.5GB")
                 return False
             return True
         except Exception as e:
@@ -60,40 +54,6 @@ class PrePatchCheck:
             self.csv_output.append("N/A")
             return False
 
-    # Consolidated function for OS and package manager identification
-    def identify_os_and_package_manager(self):
-        # Default to unknowns
-        self.os_type = "Unknown"
-        self.package_manager = "Unknown"
-        
-        if "Ubuntu" in platform.platform():
-            self.os_type = "Ubuntu"
-            # Check for apt binaries
-            if os.path.exists('/usr/bin/apt'):
-                self.package_manager = 'apt'
-            elif os.path.exists('/usr/bin/apt-get'):
-                self.package_manager = 'apt-get'
-        elif os.path.isfile("/etc/redhat-release"):
-            with open("/etc/redhat-release", "r") as file:
-                release_info = file.read()
-                if "Fedora" in release_info:
-                    self.os_type = "Fedora"
-                else:
-                    self.os_type = "RHEL/CentOS"
-            if os.path.exists('/usr/bin/dnf'):
-                self.package_manager = 'dnf'
-            elif os.path.exists('/usr/bin/yum'):
-                self.package_manager = 'yum'
-
-        if self.package_manager == "Unknown":
-            self.log("Error: Package manager not identified")
-            self.manual_intervention_required = True
-            self.failed_functions.append('identify_os_and_package_manager')
-        if self.os_type == "Unknown":
-            self.log("Error: OS not identified")
-            self.manual_intervention_required = True
-            self.failed_functions.append('identify_os_and_package_manager')
-        
     def log(self, message):
         """Log messages with a timestamp."""
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -101,29 +61,22 @@ class PrePatchCheck:
     
     def subprocess_output(self, cmd):
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            if result.returncode == 0:
-                return result.stdout.strip()
+            result = subprocess.check_output(cmd, shell=True)
+            output = result.strip()
+            if output:
+                return output
             return None
         except subprocess.CalledProcessError:
             return None
 
     def create_patch_script(self):
-        if not self.dry_run_patch():
-            self.log("Skipping patch script creation due to failed dry-run")
-            return
-
         self.log("Creating patchme.sh script")
         patchme_file = f"/root/{self.change_number}/patchme.sh"
         with open(patchme_file, 'w') as f:
             f.write("#!/bin/bash\n")
             new_kernel_version = self.get_new_kernel_version()
-            patch_cmds = {
-                "apt": f"apt-get install -y {new_kernel_version}",
-                "dnf": f"dnf install -y {new_kernel_version}",
-                "yum": f"yum -y install {new_kernel_version}"
-            }
-            f.write(patch_cmds.get(self.package_manager, "echo 'Unknown OS'"))
+            patch_cmds = f"yum --assumeno install $(while read p; do printf \"$p-$new_kernel_version \"; done < /root/{self.change_number}/kernel_packages)"
+            f.write(patch_cmds)
 
     def get_instance_id(self):
         if self._instance_id:
@@ -210,27 +163,26 @@ class PrePatchCheck:
         if self._kernel_packages:
             return self._kernel_packages
         self.log("Fetching kernel packages")
-        if "Ubuntu" in platform.platform():
-            result = subprocess.run("apt list --upgradeable | grep linux-", capture_output=True, text=True)
-            kernel_packages = result.stdout.strip()
-        else:
-            result = subprocess.run(["yum", "list", "updates", "kernel*"], capture_output=True, text=True)
-            kernel_packages = result.stdout.strip()
+        result = subprocess.run(["yum", "list", "updates", "kernel*"], capture_output=True, text=True)
+        kernel_packages = result.stdout.strip()
+        with open(f"/root/{self.change_number}/kernel_packages", 'w') as f:
+            f.write(kernel_packages)
         self.log("Kernel packages: {}".format(kernel_packages))
         return kernel_packages
 
     def dry_run_patch(self):
         self.log("Starting dry-run for kernel update")
         try:
-            new_kernel_version = self.get_new_kernel_version()
-            dry_run_cmd = {
-                    "apt": f"apt-get install --simulate {new_kernel_version}",
-                    "dnf": f"dnf install --assumeno {new_kernel_version}",
-                    "yum": f"yum install --assumeno {new_kernel_version}"
-                }.get(self.package_manager)
-            result = subprocess.run(dry_run_cmd, shell=True)
+            patchme_file = f"/root/{self.change_number}/patchme.sh"
+            result = subprocess.run(patchme_file, shell=True)
             if result.returncode == 0:
                 self.log("Dry-run successful")
+                # Replace --assumeno with -y in the patchme.sh script
+                with open(patchme_file, "r") as f:
+                    lines = f.readlines()
+                with open(patchme_file, "w") as f:
+                    for line in lines:
+                        f.write(line.replace("--assumeno", "-y"))
                 return True
         except subprocess.CalledProcessError as e:
             self.log(f"Error in dry_run_patch: {e}")
@@ -308,11 +260,11 @@ if __name__ == "__main__":
     parser.add_argument('change_number', type=str, help='Change number')
 
     args = parser.parse_args()
-    check = PrePatchCheck(args.change_number)
+    check = PrePatchCheck(CHANGE_NUMBER)
 
-    check.check_python_version()
     check.load_config()
     check.setup_logging_and_output_paths()
+    check.check_disk_space()
     check.identify_os_and_package_manager()
     check.create_patch_script()
     check.get_instance_id()
