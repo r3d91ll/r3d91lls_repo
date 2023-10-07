@@ -6,7 +6,7 @@ import subprocess
 from datetime import datetime
 import platform
 import sys
-import urllib.request
+import urllib2  # Modified import for Python 2.7
 
 CHANGE_NUMBER = "CHG012345"  # Global variable for the change number
 
@@ -21,12 +21,12 @@ class PrePatchCheck:
 
     def load_config(self):
         try:
-            response = urllib2.urlopen('https://linux-kernels.s3-us-gov-west-1.amazonaws.com/linux-kernels.json')
+            response = urllib2.urlopen('https://linux-kernels.s3-us-gov-west-1.amazonaws.com/linux-kernels.json')  # Modified urllib2 usage
             data = json.load(response)
             self.kernel_versions = data.get('kernel_list', {})
             self.valid_repositories = data.get('valid_repos', [])
         except Exception as e:
-            logging.error("Failed to load configurations: {}".format(e))
+            logging.error("Failed to load configurations: {}".format(e))  # Modified string formatting
             sys.exit(1)
 
     def setup_logging_and_output_paths(self):
@@ -61,7 +61,7 @@ class PrePatchCheck:
     
     def subprocess_output(self, cmd):
         try:
-            result = subprocess.check_output(cmd, shell=True)
+            result = subprocess.check_output(cmd, shell=True)  # Modified subprocess usage
             output = result.strip()
             if output:
                 return output
@@ -71,11 +71,11 @@ class PrePatchCheck:
 
     def create_patch_script(self):
         self.log("Creating patchme.sh script")
-        patchme_file = f"/root/{self.change_number}/patchme.sh"
+        patchme_file = "/root/{}/patchme.sh".format(self.change_number)  # Modified string formatting
         with open(patchme_file, 'w') as f:
             f.write("#!/bin/bash\n")
             new_kernel_version = self.get_new_kernel_version()
-            patch_cmds = f"yum --assumeno install $(while read p; do printf \"$p-$new_kernel_version \"; done < /root/{self.change_number}/kernel_packages)"
+            patch_cmds = "yum --assumeno install $(while read p; do printf \"{}-{} \"; done < /root/{}/kernel_packages)".format(p, new_kernel_version, self.change_number)  # Modified string formatting
             f.write(patch_cmds)
 
     def get_instance_id(self):
