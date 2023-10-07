@@ -50,7 +50,7 @@ class PrePatchCheck:
                 return False
             return True
         except Exception as e:
-            self.failed_checks.append(f"Disk space check failed due to error: {e}")
+            self.failed_checks.append("Disk space check failed due to error: {}".format(e))
             self.csv_output.append("N/A")
             return False
 
@@ -110,19 +110,18 @@ class PrePatchCheck:
             return "Unknown"
     
     def validate_repos(self):
-        # Validate and adjust repositories
-        if "Ubuntu" in platform.platform():
-            current_repos = self.subprocess_output("grep '^deb ' /etc/apt/sources.list | awk '{print $2}'")
-            for repo in current_repos:
-                if repo not in self.valid_repos.values():
-                    self.subprocess_output(f"sed -i '/{repo}/ s/^deb /#deb /' /etc/apt/sources.list")
-                    self.log(f"Disabled repository: {repo}")
-        else:  # For others using yum (or dnf)
-            current_repos = self.subprocess_output("yum repolist | awk '{print $1}'")
-            for repo in current_repos:
-                if repo not in self.valid_repos:
-                    self.subprocess_output(f"yum-config-manager --disable {repo}")
-                    self.log(f"Disabled repository: {repo}")
+    if "Ubuntu" in platform.platform():
+        current_repos = self.subprocess_output("grep '^deb ' /etc/apt/sources.list | awk '{print $2}'")
+        for repo in current_repos:
+            if repo not in self.valid_repos.values():
+                self.subprocess_output("sed -i '/{}/ s/^deb /#deb /' /etc/apt/sources.list".format(repo))
+                self.log("Disabled repository: {}".format(repo))
+    else:
+        current_repos = self.subprocess_output("yum repolist | awk '{print $1}'")
+        for repo in current_repos:
+            if repo not in self.valid_repos:
+                self.subprocess_output("yum-config-manager --disable {}".format(repo))
+                self.log("Disabled repository: {}".format(repo))
 
     def get_new_kernel_version(self):
         if self._new_kernel_version:
@@ -132,12 +131,12 @@ class PrePatchCheck:
             desired_kernel_version = self.kernel_versions.get(os_version)
             available_kernels = self.get_available_kernels()
             if desired_kernel_version not in available_kernels:
-                self.log(f"Desired kernel version {desired_kernel_version} not found in available kernels.")
+                self.log("Desired kernel version {} not found in available kernels.".format(desired_kernel_version))
                 self.manual_intervention_required = True
                 self.failed_functions.append('get_new_kernel_version')
             return desired_kernel_version
         except Exception as e:
-            self.log(f"Error in get_new_kernel_version: {e}. Please check the syntax of the input.json file.")
+            self.log("Error in get_new_kernel_version: {}. Please check the syntax of the input.json file.".format(e))
             self.manual_intervention_required = True
             self.failed_functions.append('get_new_kernel_version')
     
@@ -147,11 +146,9 @@ class PrePatchCheck:
 
         self.log("Fetching the 5 latest available kernels")
         if self.os_type == "Ubuntu":
-            # Fetching the available kernels, then sorting them, and taking the top 5
             result = subprocess.run("apt list --upgradeable 2>/dev/null | grep linux-image | sort -V | tail -5", capture_output=True, text=True)
             available_kernels = result.stdout.strip().splitlines()
         else:
-            # Fetching the 5 latest kernels for non-Ubuntu distributions
             result = subprocess.run(["yum", "list", "kernel", "--showduplicates"], capture_output=True, text=True)
             available_kernels = result.stdout.strip().splitlines()[:5]
         self.log("Available kernels: {}".format(", ".join(available_kernels)))
@@ -165,7 +162,7 @@ class PrePatchCheck:
         self.log("Fetching kernel packages")
         result = subprocess.run(["yum", "list", "updates", "kernel*"], capture_output=True, text=True)
         kernel_packages = result.stdout.strip()
-        with open(f"/root/{self.change_number}/kernel_packages", 'w') as f:
+        with open("/root/{}/kernel_packages".format(self.change_number), 'w') as f:
             f.write(kernel_packages)
         self.log("Kernel packages: {}".format(kernel_packages))
         return kernel_packages
@@ -173,11 +170,10 @@ class PrePatchCheck:
     def dry_run_patch(self):
         self.log("Starting dry-run for kernel update")
         try:
-            patchme_file = f"/root/{self.change_number}/patchme.sh"
+            patchme_file = "/root/{}/patchme.sh".format(self.change_number)
             result = subprocess.run(patchme_file, shell=True)
             if result.returncode == 0:
                 self.log("Dry-run successful")
-                # Replace --assumeno with -y in the patchme.sh script
                 with open(patchme_file, "r") as f:
                     lines = f.readlines()
                 with open(patchme_file, "w") as f:
@@ -185,7 +181,7 @@ class PrePatchCheck:
                         f.write(line.replace("--assumeno", "-y"))
                 return True
         except subprocess.CalledProcessError as e:
-            self.log(f"Error in dry_run_patch: {e}")
+            self.log("Error in dry_run_patch: {}".format(e))
         self.log("Dry-run failed")
         self.manual_intervention_required = True
         self.failed_functions.append('dry_run_patch')
@@ -217,14 +213,10 @@ class PrePatchCheck:
         self.log("Generating report")
         intervention_message = "Manual intervention required" if self.manual_intervention_required else "No intervention required"
         
-        # Determine the QC Pass status
-        qc_pass_status = "PASS" if not self.manual_intervention_required else f"FAIL on {', '.join(self.failed_functions)}"
+        qc_pass_status = "PASS" if not self.manual_intervention_required else "FAIL on {}".format(', '.join(self.failed_functions))
         
         with open(self.pre_patch_report_filepath, 'w') as f:
-            # Write the headers to the CSV file
             f.write("instance_id,os_version,NewKernelVersion,available_kernels,kernel_packages,crowdstrike_version,rfm_state,/var_space_GB,script_start_time,script_end_time,intervention_required,QC Pass\n")
-            
-            # Write the values to the CSV file
             f.write("{},{},{},{},{},{},{},{},{},{},{},{}".format(
                 self.get_instance_id(), 
                 self.get_os_version(),
@@ -233,11 +225,11 @@ class PrePatchCheck:
                 self.get_kernel_packages(),
                 self.get_crowdstrike_version(),
                 self.get_rfm_state(),
-                self.csv_output[-1],  # The last element should be the /var disk space
-                self.start_time,
-                datetime.now(),
+                self.csv_output[-1],
+                self.script_start_time,
+                self.script_end_time,
                 intervention_message,
-                qc_pass_status  # This is the QC Pass status
+                qc_pass_status
             ))
         self.log("Report generated")
 
@@ -248,10 +240,6 @@ class PrePatchCheck:
         elif int(change_number) < 0:
             print("Change number should be a positive integer")
             sys.exit(1)
-
-    def copy_files(src, dest, change_number):
-        # Perform the copy operation here.
-        print(f"Copying files from {src} to {dest} for change {change_number}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Copy files based on change number.')
