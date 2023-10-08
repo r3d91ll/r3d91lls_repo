@@ -70,32 +70,32 @@ class PrePatchCheck:
             return None
         
     def check_and_update_kernel(self):
-    try:
-        # 2. Check Current Kernel Version
-        current_kernel = self.get_current_kernel_version()
-        
-        # 3. Identify OS Version
-        os_version = self.get_os_version()
-        
-        # 4. Determine Desired Kernel Version
-        desired_kernel = self.kernel_versions.get(os_version)
-        
-        # 5. Compare Kernel Versions and Decide Action
-        if current_kernel == desired_kernel:
-            self.log("Kernel is up-to-date. No update required.")
-            self.report["kernel_update"] = "Not required"
-        elif self.is_version_higher(current_kernel, desired_kernel):
-            self.log("Current kernel is higher than desired. Manual intervention required.")
-            self.report["kernel_update"] = "Manual intervention required for potential downgrade"
+        try:
+            # 2. Check Current Kernel Version
+            current_kernel = self.get_current_kernel_version()
+            
+            # 3. Identify OS Version
+            os_version = self.get_os_version()
+            
+            # 4. Determine Desired Kernel Version
+            desired_kernel = self.kernel_versions.get(os_version)
+            
+            # 5. Compare Kernel Versions and Decide Action
+            if current_kernel == desired_kernel:
+                self.log("Kernel is up-to-date. No update required.")
+                self.report["kernel_update"] = "Not required"
+            elif self.is_version_higher(current_kernel, desired_kernel):
+                self.log("Current kernel is higher than desired. Manual intervention required.")
+                self.report["kernel_update"] = "Manual intervention required for potential downgrade"
+                self.manual_intervention_required = True
+            else:
+                self.log("Kernel update required. Writing patch script.")
+                self.report["kernel_update"] = "Update required to version {}".format(desired_kernel)
+                self.create_patch_script(desired_kernel)
+        except Exception as e:
+            self.log("Error in check_and_update_kernel: {}".format(e))
+            self.report["kernel_update"] = "Error encountered. Check logs."
             self.manual_intervention_required = True
-        else:
-            self.log("Kernel update required. Writing patch script.")
-            self.report["kernel_update"] = "Update required to version {}".format(desired_kernel)
-            self.create_patch_script(desired_kernel)
-    except Exception as e:
-        self.log("Error in check_and_update_kernel: {}".format(e))
-        self.report["kernel_update"] = "Error encountered. Check logs."
-        self.manual_intervention_required = True
 
     def create_patch_script(self):
         self.log("Creating patchme.sh script")
