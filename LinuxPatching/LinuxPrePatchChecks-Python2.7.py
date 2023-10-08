@@ -97,7 +97,6 @@ class PrePatchCheck:
         self.report["kernel_update"] = "Error encountered. Check logs."
         self.manual_intervention_required = True
 
-
     def create_patch_script(self):
         self.log("Creating patchme.sh script")
         patchme_file = "/root/{}/patchme.sh".format(self.change_number)  # Modified string formatting
@@ -255,8 +254,8 @@ class PrePatchCheck:
                 self.get_crowdstrike_version(),
                 self.get_rfm_state(),
                 self.csv_output[-1],
-                self.script_start_time,
-                self.script_end_time,
+                self.start_time,
+                self.end_time,
                 intervention_message,
                 qc_pass_status
             ))
@@ -272,8 +271,6 @@ class PrePatchCheck:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Copy files based on change number.')
-    parser.add_argument('src', type=str, help='Source directory')
-    parser.add_argument('dest', type=str, help='Destination directory')
     parser.add_argument('change_number', type=str, help='Change number')
 
     args = parser.parse_args()
@@ -284,7 +281,6 @@ if __name__ == "__main__":
     check.setup_logging_and_output_paths()
     check.check_disk_space()
     check.identify_os()
-    check.identify_os_and_package_manager()
     check.create_patch_script()
     check.get_instance_id()
     check.get_new_kernel_version()
