@@ -138,18 +138,29 @@ class PrePatchCheck:
             return "Unknown"
     
     def validate_repos(self):
-    if "Ubuntu" in platform.platform():
-        current_repos = self.subprocess_output("grep '^deb ' /etc/apt/sources.list | awk '{print $2}'")
-        for repo in current_repos:
-            if repo not in self.valid_repos.values():
-                self.subprocess_output("sed -i '/{}/ s/^deb /#deb /' /etc/apt/sources.list".format(repo))
-                self.log("Disabled repository: {}".format(repo))
-    else:
-        current_repos = self.subprocess_output("yum repolist | awk '{print $1}'")
-        for repo in current_repos:
-            if repo not in self.valid_repos:
-                self.subprocess_output("yum-config-manager --disable {}".format(repo))
-                self.log("Disabled repository: {}".format(repo))
+        if "Ubuntu" in platform.platform():
+            current_repos = self.subprocess_output("grep '^deb ' /etc/apt/sources.list | awk '{print $2}'")
+            for repo in current_repos:
+                if repo not in self.valid_repos.values():
+                    self.subprocess_output("sed -i '/{}/ s/^deb /#deb /' /etc/apt/sources.list".format(repo))
+                    self.log("Disabled repository: {}".format(repo))
+        else:
+            current_repos = self.subprocess_output("yum repolist | awk '{print $1}'")
+            for repo in current_repos:
+                if repo not in self.valid_repos:
+                    self.subprocess_output("yum-config-manager --disable {}".format(repo))
+                    self.log("Disabled repository: {}".format(repo))
+    
+    def get_current_kernel_version(self):
+        try:
+            current_kernel = subprocess.check_output(["uname", "-r"]).strip()
+            self.log("Current kernel version: {}".format(current_kernel))
+            return current_kernel
+        except subprocess.CalledProcessError as e:
+            self.log("Error getting current kernel version: {}".format(e))
+            self.manual_intervention_required = True
+            self.failed_functions.append('get_current_kernel_version')
+            return None
 
     def get_new_kernel_version(self):
         if self._new_kernel_version:
@@ -238,6 +249,7 @@ class PrePatchCheck:
         return rfm_state
 
     def generate_report(self):
+        self.end_time = datetime.now()
         self.log("Generating report")
         intervention_message = "Manual intervention required" if self.manual_intervention_required else "No intervention required"
         
@@ -255,7 +267,7 @@ class PrePatchCheck:
                 self.get_rfm_state(),
                 self.csv_output[-1],
                 self.start_time,
-                self.end_time,
+                self.end_time = None,
                 intervention_message,
                 qc_pass_status
             ))
