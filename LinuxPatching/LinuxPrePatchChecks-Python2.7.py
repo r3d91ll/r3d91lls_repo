@@ -196,15 +196,29 @@ class PrePatchCheck:
         return available_kernels
 
     def get_kernel_packages(self):
-        if self._kernel_packages:
-            return self._kernel_packages
-        self.log("Fetching kernel packages")
-        result = subprocess.run(["yum", "list", "updates", "kernel*"], capture_output=True, text=True)
-        kernel_packages = result.stdout.strip()
-        with open("/root/{}/kernel_packages".format(self.change_number), 'w') as f:
-            f.write(kernel_packages)
-        self.log("Kernel packages: {}".format(kernel_packages))
-        return kernel_packages
+        try:
+            # Constructing the command to fetch kernel packages
+            cmd = "yum list updates 'kernel*' | grep ^kernel | cut -d. -f1"
+            
+            # Executing the command and capturing the output
+            kernel_packages = subprocess.check_output(cmd, shell=True).decode().strip()
+            
+            # Writing the kernel packages to a file
+            with open("/root/{}/kernel_packages".format(self.change_number), 'w') as f:
+                f.write(kernel_packages)
+            
+            # Logging the kernel packages
+            self.log("Kernel packages: {}".format(kernel_packages))
+            
+            # Returning the kernel packages
+            return kernel_packages
+        
+        except subprocess.CalledProcessError as e:
+            # Logging an error if the subprocess call fails
+            self.log("Error fetching kernel packages: {}".format(e))
+            self.manual_intervention_required = True
+            self.failed_functions.append('get_kernel_packages')
+            return None
 
     def dry_run_patch(self):
         self.log("Starting dry-run for kernel update")
@@ -267,7 +281,7 @@ class PrePatchCheck:
                 self.get_rfm_state(),
                 self.csv_output[-1],
                 self.start_time,
-                self.end_time = None,
+                self.end_time,
                 intervention_message,
                 qc_pass_status
             ))
