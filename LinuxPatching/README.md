@@ -1,57 +1,36 @@
-```markdown
-# Linux Patching Scripts
+# Linux Patching Scripts and Utilities
 
-This repository contains scripts designed to facilitate Linux system patching by conducting pre-patch checks using various versions of Python and a shell script. The scripts gather various system metrics and configurations to audit the system status before applying patches.
+This directory contains scripts and utilities that assist with patching and pre-patch checks for Linux systems. The tools are designed to automate and streamline the patching process, ensuring that systems are updated efficiently and securely.
 
-## Scripts Overview
+## Contents
 
-### 1. [LinuxPrePatchChecks-Python2.7.py](https://github.com/r3d91ll/r3d91lls_repo/blob/main/LinuxPatching/LinuxPrePatchChecks-Python2.7.py)
-- **Language**: Python 2.7
-- **Purpose**: Conducts pre-patch checks on a Linux system, gathering various system metrics and configurations.
+- [LinuxPrePatchChecks-Python2.7.py](https://github.com/r3d91ll/r3d91lls_repo/blob/main/LinuxPatching/LinuxPrePatchChecks-Python2.7.py): A Python 2.7 script for conducting pre-patch checks on Linux systems.
+  
+- [LinuxPrePatchChecks-Python3.py](https://github.com/r3d91ll/r3d91lls_repo/blob/main/LinuxPatching/LinuxPrePatchChecks-Python3.py): A Python 3 script for conducting pre-patch checks on Linux systems.
+  
+- [LinuxPrePatchChecks.sh](https://github.com/r3d91ll/r3d91lls_repo/blob/main/LinuxPatching/LinuxPrePatchChecks.sh): A Bash script for conducting pre-patch checks on Linux systems.
+  
+- [linux-kernels.json](https://github.com/r3d91ll/r3d91lls_repo/blob/main/LinuxPatching/linux-kernels.json): A JSON file containing data related to Linux kernels.
 
-### 2. [LinuxPrePatchChecks-Python3.py](https://github.com/r3d91ll/r3d91lls_repo/blob/main/LinuxPatching/LinuxPrePatchChecks-Python3.py)
-- **Language**: Python 3
-- **Purpose**: Similar to the Python 2.7 script, it performs pre-patch checks and is adapted for Python 3 environments.
+## Quick Start
 
-### 3. [LinuxPrePatchChecks.sh](https://github.com/r3d91ll/r3d91lls_repo/blob/main/LinuxPatching/LinuxPrePatchChecks.sh)
-- **Language**: Shell Script
-- **Purpose**: Determines the version of Python running on a Linux instance and pulls the correct version of the Python pre-patch check script. Intended to become an SSM document.
+To use the pre-patch check scripts, ensure you have the appropriate version of Python installed and execute the script on your Linux system. For Bash scripts, ensure they have execute permissions and run them in your Linux environment.
 
-### 4. [linux-kernels.json](https://github.com/r3d91ll/r3d91lls_repo/blob/main/LinuxPatching/linux-kernels.json)
-- **Type**: JSON File
-- **Purpose**: Stores data related to Linux kernels, possibly utilized by the Python scripts during checks.
-
-## Workflow
-
-1. **Python Scripts Testing**: The Python scripts (`LinuxPrePatchChecks-Python2.7.py` and `LinuxPrePatchChecks-Python3.py`) are currently under testing across various supported Linux distributions to ensure accurate and reliable pre-patch checks.
-
-2. **Shell Script Integration**: Upon completion of Python scripts testing, the shell script (`LinuxPrePatchChecks.sh`) will be tested. This script is designed to:
-   - Determine the version of Python running on an instance.
-   - Pull and execute the appropriate version of the Python pre-patch check script.
-
-3. **SSM Document Creation**: The shell script will eventually be transformed into an SSM document to facilitate automated patch management in AWS environments.
-
-## Usage
-
-### Python Scripts
-Execute the relevant Python script according to the Python version available on your system:
+Example for running a Python script:
 ```bash
-python LinuxPrePatchChecks-Python2.7.py
-```
-or
-```bash
-python3 LinuxPrePatchChecks-Python3.py
+python LinuxPrePatchChecks-Python3.py
 ```
 
-### Shell Script
-Execute the shell script using bash:
+Example for running a Bash script:
 ```bash
-bash LinuxPrePatchChecks.sh
+chmod +x LinuxPrePatchChecks.sh
+./LinuxPrePatchChecks.sh
 ```
+
+## Additional Information
+
+Detailed documentation for each script will be provided soon, offering insights into their usage, options, and output.
 
 ## Contributing
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## License
-This project is licensed under the MIT License - see the LICENSE.md file for details.
-
+Feel free to contribute to the development of these scripts by creating issues or pull requests.
