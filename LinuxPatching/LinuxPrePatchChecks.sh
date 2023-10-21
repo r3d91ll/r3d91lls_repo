@@ -1,14 +1,53 @@
 #!/bin/bash
 
-if command -v python2.7 >/dev/null 2>&1; then
-    echo "Python 2.7 is available. Downloading and running Python 2.7 script..."
-    wget -O LinuxPrePatchChecks-Python2.7.py "https://inc0361448.s3.us-gov-west-1.amazonaws.com/LinuxPrePatchChecks-Python2.7.py"
-    python2.7 LinuxPrePatchChecks-Python2.7.py
-elif command -v python3 >/dev/null 2>&1; then
-    echo "Python 3 is available. Downloading and running Python 3 script..."
-    wget -O LinuxPrePatchChecks-Python3.py "https://inc0361448.s3.us-gov-west-1.amazonaws.com/LinuxPrePatchChecks-Python3.py"
-    python3 LinuxPrePatchChecks-Python3.py
+# Define the S3 bucket URL placeholder
+S3_BUCKET_URL="https://your-s3-bucket-url"
+
+# Identify the distribution and version
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    DISTRO=$ID
+    VERSION=$VERSION_ID
+elif [ -f /etc/lsb-release ]; then
+    . /etc/lsb-release
+    DISTRO=$DISTRIB_ID
+    VERSION=$DISTRIB_RELEASE
 else
-    echo "No compatible Python version found on $HOSTNAME. Please manually check the Python version."
+    echo "Unsupported distribution"
     exit 1
 fi
+
+# Convert the distro and version to lowercase (for consistency in naming)
+DISTRO=$(echo "$DISTRO" | tr '[:upper:]' '[:lower:]')
+VERSION=$(echo "$VERSION" | tr '[:upper:]' '[:lower:]')
+
+# Based on distro and version, download the appropriate Python script
+case "$DISTRO" in
+    "rhel")
+        case "$VERSION" in
+            "9"|"8")
+                wget "$S3_BUCKET_URL/LinuxPrePatchRHEL-Py3.py" -O patching_script.py
+                ;;
+            "7")
+                wget "$S3_BUCKET_URL/LinuxPrePatchRHEL-Py27.py" -O patching_script.py
+                ;;
+            *)
+                echo "Unsupported RHEL version"
+                exit 1
+                ;;
+        esac
+        ;;
+    "ubuntu")
+        wget "$S3_BUCKET_URL/LinuxPrePatchUbuntu.py" -O patching_script.py
+        ;;
+    *)
+        echo "Unsupported distribution"
+        exit 1
+        ;;
+esac
+
+# Ensure the downloaded script has execute permissions
+chmod +x patching_script.py
+
+# Optionally run the script
+# ./patching_script.py
