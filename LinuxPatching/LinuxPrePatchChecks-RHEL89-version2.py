@@ -14,23 +14,10 @@ class CriticalSubprocessError(Exception):
 class PrePatchCheck:
     def __init__(self, changeNumber):
         try:
-            self.changeNumber = changeNumber
-            self.kernelVersions = {}
-            self.validRepositories = []
-            self.startTime = datetime.now()
-            self.failedFunctions = []
-            self.packageManager = 'dnf'
-            self.manualInterventionNeeded = False
-            self.outputDirectory = ""
-            self.debugLogFilepath = ""
-            self.prePatchReportFilepath = ""
-            self.csvOutput = []
-            self._instanceId = None
-            self._newKernelVersion = None
-            self._kernelPackages = None
-            self._crowdstrikeVersion = None
-            self._rfmState = None
-            self.failedChecks = []        
+            self.initialize_variables(changeNumber)
+            self.run_pre_patch_checks()
+            self.log_initial_state()
+            self.generate_report()
             self.load_config()
             self.setup_logging_and_output_paths()
             self.check_disk_space()
@@ -57,11 +44,98 @@ class PrePatchCheck:
             self.log(f"End time: {datetime.now()}")
             self.log(f"Elapsed time: {datetime.now() - self.startTime}")
             self.log("Pre-patch check completed")
-            self.generate_report()
             self.stage_patch_script()
         except CriticalSubprocessError:
                 self.update_critical_failure_report()
                 sys.exit(1)
+    
+    def initialize_variables(self, changeNumber):
+        self.changeNumber = changeNumber
+        self.kernelVersions = {}
+        self.validRepositories = []
+        self.startTime = datetime.now()
+        self.failedFunctions = []
+        self.packageManager = 'dnf'
+        self.manualInterventionNeeded = False
+        self.outputDirectory = ""
+        self.debugLogFilepath = ""
+        self.prePatchReportFilepath = ""
+        self.csvOutput = []
+        self._instanceId = None
+        self._newKernelVersion = None
+        self._kernelPackages = None
+        self._crowdstrikeVersion = None
+        self._rfmState = None
+        self.failedChecks = []
+
+    def log_initial_state(self):
+        self.log(f"Start time: {self.startTime}")
+        self.log("Starting pre-patch check")
+        # ... (log other initial state information)
+        self.log("Pre-patch check completed")
+
+    def run_pre_patch_checks(self):
+        self.log("Starting pre-patch checks...")
+
+        # Load configurations
+        if not self.load_config():
+            self.log("Failed to load configurations. Exiting.")
+            return False
+
+        # Setup logging and output paths
+        if not self.setup_logging_and_output_paths():
+            self.log("Failed to set up logging and output paths. Exiting.")
+            return False
+
+        # Check disk space
+        if not self.check_disk_space():
+            self.log("Disk space check failed. Exiting.")
+            return False
+
+        # Identify OS type
+        os_type = self.identify_os()
+        if os_type == "Unknown":
+            self.log("Failed to identify OS type. Exiting.")
+            return False
+
+        # Fetch instance ID
+        instance_id = self.get_instanceId()
+        if instance_id == "Unknown":
+            self.log("Failed to fetch instance ID. Exiting.")
+            return False
+
+        # Fetch kernel packages
+        kernel_packages = self.get_kernelPackages()
+        if kernel_packages is None:
+            self.log("Failed to fetch kernel packages. Exiting.")
+            return False
+
+        # Fetch available kernels
+        available_kernels = self.get_available_kernels()
+        if not available_kernels:
+            self.log("Failed to fetch available kernels. Exiting.")
+            return False
+
+        # Fetch new kernel version
+        new_kernel_version = self.get_newKernelVersion()
+        if new_kernel_version is None:
+            self.log("Failed to fetch new kernel version. Exiting.")
+            return False
+
+        # Fetch CrowdStrike version
+        crowdstrike_version = self.get_crowdstrikeVersion()
+        if crowdstrike_version == "CrowdStrike not installed" or crowdstrike_version == "CrowdStrike error":
+            self.log("Failed to fetch CrowdStrike version. Exiting.")
+            return False
+
+        # Fetch RFM state
+        rfm_state = self.get_rfmState()
+        if rfm_state == "Error":
+            self.log("Failed to fetch RFM state. Exiting.")
+            return False
+
+        self.log("Pre-patch checks completed successfully.")
+        return True
 
     def load_config(self):
         self.log("Loading configurations...")  # Log method invocation
@@ -74,19 +148,26 @@ class PrePatchCheck:
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             config_data = result.stdout
+        except subprocess.CalledProcessError:
+            self.log("Failed to fetch configurations from the URL.")
+            self.update_prepatch_report("Manual Intervention Required: Failed to download linux-kernels.json")
+            self.manualInterventionRequired = True
+            return
+        except Exception as e:
+            self.log(f"An unexpected error occurred while executing the command: {e}")
+            self.manualInterventionRequired = True
+            return
+
+        try:
             data = json.loads(config_data)
             self.kernelVersions = data.get('kernel_list', {})
             self.validRepositories = data.get('valid_repos', [])
-        except subprocess.CalledProcessError:
-            logging.error(f"Failed to fetch configurations from the URL.")
-            self.update_prepatch_report("Manual Intervention Required: Failed to download linux-kernels.json")
-            self.manualInterventionRequired = True
         except json.JSONDecodeError:
-            logging.error(f"Failed to parse the fetched configurations as JSON.")
+            self.log("Failed to parse the fetched configurations as JSON.")
             self.update_prepatch_report("Manual Intervention Required: JSON ERROR")
             self.manualInterventionRequired = True
         except Exception as e:
-            logging.error(f"An unexpected error occurred: {e}")
+            self.log(f"An unexpected error occurred while parsing the JSON data: {e}")
             self.manualInterventionRequired = True
 
     def setup_logging_and_output_paths(self):
