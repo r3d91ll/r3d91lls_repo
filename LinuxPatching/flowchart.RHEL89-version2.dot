@@ -1,0 +1,853 @@
+digraph my_graph {
+bgcolor="white"
+node [fontname="courier"]
+
+LStart___init__ [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L17 [shape=rect] [label="self.initialize_variables(changeNumber)
+self.run_pre_patch_checks()
+self.log_initial_state()
+self.generate_report()
+self.load_config()
+self.setup_logging_and_output_paths()
+self.check_disk_space()
+self.log(f'Start time: {self.startTime}')
+self.log('Starting pre-patch check')
+self.log(f'Change number: {self.changeNumber}')
+self.log(f'Kernel versions: {self.kernelVersions}')
+self.log(f'Valid repositories: {self.validRepositories}')
+self.log(f'Package manager: {self.packageManager}')
+self.log(f'Output directory: {self.outputDirectory}')
+self.log(f'Debug log filepath: {self.debugLogFilepath}')
+self.log(f'Pre-patch report filepath: {self.prePatchReportFilepath}')
+self.log(f'CSV output: {self.csvOutput}')
+self.log(f'Instance ID: {self.get_instanceId()}')
+self.log(f'OS type: {self.identify_os()}')
+self.log(f'Kernel packages: {self.get_kernelPackages()}')
+self.log(f'Available kernels: {self.get_available_kernels()}')
+self.log(f'New kernel version: {self.get_newKernelVersion()}')
+self.log(f'CrowdStrike version: {self.get_crowdstrikeVersion()}')
+self.log(f'RFM state: {self.get_rfmState()}')
+self.log(f'Disk space: {self.check_disk_space()}')
+self.log(f'Manual intervention required: {self.manualInterventionRequired}')
+self.log(f'Failed functions: {self.failedFunctions}')
+self.log(f'End time: {datetime.now()}')
+self.log(f'Elapsed time: {datetime.now() - self.startTime}')
+self.log('Pre-patch check completed')
+self.stage_patch_script()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L49 [shape=rect] [label="self.update_critical_failure_report()
+sys.exit(1)
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+LStart_initialize_variables [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L53 [shape=rect] [label="self.changeNumber = changeNumber
+self.kernelVersions = {}
+self.validRepositories = []
+self.startTime = datetime.now()
+self.failedFunctions = []
+self.packageManager = 'dnf'
+self.manualInterventionNeeded = False
+self.outputDirectory = ''
+self.debugLogFilepath = ''
+self.prePatchReportFilepath = ''
+self.csvOutput = []
+self._instanceId = None
+self._newKernelVersion = None
+self._kernelPackages = None
+self._crowdstrikeVersion = None
+self._rfmState = None
+self.failedChecks = []
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+LStart_log_initial_state [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L72 [shape=rect] [label="self.log(f'Start time: {self.startTime}')
+self.log('Starting pre-patch check')
+self.log('Pre-patch check completed')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+LStart_run_pre_patch_checks [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L78 [shape=rect] [label="self.log('Starting pre-patch checks...')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L81 [shape=diamond] [label="not self.load_config()"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L82 [shape=rect] [label="self.log('Failed to load configurations. Exiting.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L83 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L86 [shape=diamond] [label="not self.setup_logging_and_output_paths()"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L87 [shape=rect] [label="self.log('Failed to set up logging and output paths. Exiting.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L88 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L91 [shape=diamond] [label="not self.check_disk_space()"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L92 [shape=rect] [label="self.log('Disk space check failed. Exiting.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L93 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L96 [shape=rect] [label="os_type = self.identify_os()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L97 [shape=diamond] [label="os_type == 'Unknown'"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L98 [shape=rect] [label="self.log('Failed to identify OS type. Exiting.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L99 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L102 [shape=rect] [label="instance_id = self.get_instanceId()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L103 [shape=diamond] [label="instance_id == 'Unknown'"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L104 [shape=rect] [label="self.log('Failed to fetch instance ID. Exiting.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L105 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L108 [shape=rect] [label="kernel_packages = self.get_kernelPackages()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L109 [shape=diamond] [label="kernel_packages is None"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L110 [shape=rect] [label="self.log('Failed to fetch kernel packages. Exiting.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L111 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L114 [shape=rect] [label="available_kernels = self.get_available_kernels()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L115 [shape=diamond] [label="not available_kernels"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L116 [shape=rect] [label="self.log('Failed to fetch available kernels. Exiting.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L117 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L120 [shape=rect] [label="new_kernel_version = self.get_newKernelVersion()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L121 [shape=diamond] [label="new_kernel_version is None"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L122 [shape=rect] [label="self.log('Failed to fetch new kernel version. Exiting.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L123 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L126 [shape=rect] [label="crowdstrike_version = self.get_crowdstrikeVersion()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L127 [shape=diamond] [label="crowdstrike_version == 'CrowdStrike not installed' or crowdstrike_version == 'CrowdStrike error'"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L128 [shape=rect] [label="self.log('Failed to fetch CrowdStrike version. Exiting.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L129 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L132 [shape=rect] [label="rfm_state = self.get_rfmState()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L133 [shape=diamond] [label="rfm_state == 'Error'"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L134 [shape=rect] [label="self.log('Failed to fetch RFM state. Exiting.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L135 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L137 [shape=rect] [label="self.log('Pre-patch checks completed successfully.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L138 [shape=ellipse] [label="True"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+
+LStart_load_config [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L141 [shape=rect] [label="self.log('Loading configurations...')
+cmd = ['curl', 'https://linux-kernels.s3-us-gov-west-1.amazonaws.com/linux-kernels.json']
+self.log(f'Executing command: {' '.join(cmd)}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L149 [shape=rect] [label="result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+config_data = result.stdout
+self.log('Failed to fetch configurations from the URL.')
+self.update_prepatch_report('Manual Intervention Required: Failed to download linux-kernels.json')
+self.manualInterventionRequired = True
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+L157 [shape=rect] [label="self.log(f'An unexpected error occurred while executing the command: {e}')
+self.manualInterventionRequired = True
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+L162 [shape=rect] [label="data = json.loads(config_data)
+self.kernelVersions = data.get('kernel_list', {})
+self.validRepositories = data.get('valid_repos', [])
+self.log('Failed to parse the fetched configurations as JSON.')
+self.update_prepatch_report('Manual Intervention Required: JSON ERROR')
+self.manualInterventionRequired = True
+self.log(f'An unexpected error occurred while parsing the JSON data: {e}')
+self.manualInterventionRequired = True
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+LStart_setup_logging_and_output_paths [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L174 [shape=rect] [label="self.outputDirectory = os.path.join('/root', self.changeNumber)
+self.debugLogFilepath = os.path.join(self.outputDirectory, 'debug.log')
+self.prePatchReportFilepath = os.path.join(self.outputDirectory, 'pre-patch.report')
+os.makedirs(self.outputDirectory, exist_ok=True)
+logging.basicConfig(filename=self.debugLogFilepath, level=logging.DEBUG)
+open(self.debugLogFilepath, 'w').close()
+open(self.prePatchReportFilepath, 'w').close()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+LStart_log [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L184 [shape=rect] [label="'Log messages with a timestamp.'
+timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.debug('{}: {}'.format(timestamp, message))
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+LStart_subprocess_output [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L189 [shape=rect] [label="self.log(f'Executing command: {' '.join(cmd)}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L191 [shape=rect] [label="result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+output = result.stdout.strip()
+self.log(f'Command output: {output}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L194 [shape=ellipse] [label="output"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L196 [shape=rect] [label="self.log(f'Command failed with return code: {e.returncode}. Error: {e.stderr}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L197 [shape=ellipse] [label="CriticalSubprocessError('Command execution failed.')"] [type="RAISE"] [style=filled fillcolor="#F45050" fontcolor=white]
+L199 [shape=rect] [label="self.log(f'Error executing command: {e}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L200 [shape=ellipse] [label="CriticalSubprocessError('Unexpected error during command execution.')"] [type="RAISE"] [style=filled fillcolor="#F45050" fontcolor=white]
+
+LStart_update_critical_failure_report [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L203 [shape=rect] [label="open(self.prePatchReportFilepath, 'w')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L204 [shape=rect] [label="f.write('Critical Python Failure. Check logs for details.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+LStart_get_instanceId [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L207 [shape=diamond] [label="self._instanceId"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L208 [shape=ellipse] [label="self._instanceId"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L210 [shape=rect] [label="instance_id = self.subprocess_output(['curl', '-s', 'http://169.254.169.254/latest/meta-data/instance-id'])
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L211 [shape=diamond] [label="instance_id"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L212 [shape=rect] [label="self.log('Instance id: {}'.format(instance_id))
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L213 [shape=ellipse] [label="instance_id"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+
+L215 [shape=rect] [label="self.log('Error fetching instance ID.')
+self.manualInterventionRequired = True
+self.failedFunctions.append('get_instanceId')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L218 [shape=ellipse] [label="'Unknown'"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+
+LStart_identify_os [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L222 [shape=diamond] [label="os.path.isfile('/etc/redhat-release')"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L223 [shape=rect] [label="open('/etc/redhat-release', 'r')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L224 [shape=rect] [label="release_info = file.read()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L225 [shape=diamond] [label="'Fedora' in release_info"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L226 [shape=rect] [label="self.osType = 'Fedora'
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+L228 [shape=rect] [label="self.osType = 'RHEL/CentOS'
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L229 [shape=diamond] [label="os.path.isfile('/etc/system-release')"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L230 [shape=rect] [label="open('/etc/system-release', 'r')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L231 [shape=rect] [label="release_info = file.read()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L232 [shape=diamond] [label="'Amazon Linux release 2' in release_info"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L233 [shape=rect] [label="self.osType = 'AWSLinux2'
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L234 [shape=diamond] [label="'Amazon Linux release 2022' in release_info"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L235 [shape=rect] [label="self.osType = 'AWSLinux2022'
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+L237 [shape=ellipse] [label="ValueError('Unexpected content in /etc/system-release.')"] [type="RAISE"] [style=filled fillcolor="#F45050" fontcolor=white]
+
+L239 [shape=ellipse] [label="FileNotFoundError('OS identification files not found.')"] [type="RAISE"] [style=filled fillcolor="#F45050" fontcolor=white]
+L241 [shape=rect] [label="self.log(f'Error reading OS identification file: {e}')
+self.osType = 'Unknown'
+self.log(str(e))
+self.osType = 'Unknown'
+self.log(f'Unexpected error in identify_os: {e}')
+self.osType = 'Unknown'
+self.manualInterventionRequired = True
+self.failedFunctions.append('identify_os')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L251 [shape=ellipse] [label="self.osType"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+
+LStart_check_disk_space [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L255 [shape=rect] [label="stat = os.statvfs('/var')
+free_space_gb = stat.f_frsize * stat.f_bavail / (1024 * 1024 * 1024)
+self.csvOutput.append(f'{free_space_gb:.2f} GB')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L258 [shape=diamond] [label="free_space_gb < 2"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L259 [shape=rect] [label="self.failedChecks.append('Disk space less than 2GB')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L260 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L261 [shape=ellipse] [label="True"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L263 [shape=rect] [label="self.log(f'File system error when checking disk space: {e}')
+self.failedChecks.append(f'Disk space check failed due to error: {e}')
+self.csvOutput.append('N/A')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L266 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L268 [shape=rect] [label="self.log(f'Unexpected error in check_disk_space: {e}')
+self.failedChecks.append(f'Disk space check failed due to error: {e}')
+self.csvOutput.append('N/A')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L271 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+
+LStart_validate_repos [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L275 [shape=rect] [label="open('linux-kernels.json', 'r')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L276 [shape=rect] [label="data = json.load(file)
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L279 [shape=rect] [label="valid_repos = data['valid_repos'].get(os_version, [])
+non_valid_repos = data['non-valid_repos']
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L284 [shape=rect] [label="result = subprocess.run(['yum', 'repo', 'list', 'enabled'], capture_output=True, text=True)
+enabled_repos = result.stdout.splitlines()
+print(f'Error getting list of enabled repositories: {e}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+L291 [shape=rect] [label="non_standard_repos = []
+disabled_repos = []
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L295 [shape=rect] [label="for repo in non_valid_repos"] [type="LOOP"] [style=filled fillcolor="#6D67E4" fontcolor=white]
+L296 [shape=diamond] [label="any((r.startswith(repo) for r in enabled_repos))"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L298 [shape=rect] [label="subprocess.run(['yum-config-manager', '--disable', f'{repo}*'], check=True)
+print(f'Disabled non-valid repo: {repo}')
+disabled_repos.append(repo)
+print(f'Error disabling non-valid repo {repo}: {e}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L305 [shape=rect] [label="for repo in enabled_repos"] [type="LOOP"] [style=filled fillcolor="#6D67E4" fontcolor=white]
+L306 [shape=diamond] [label="repo not in valid_repos and (not any((r.startswith(repo) for r in non_valid_repos)))"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L307 [shape=rect] [label="non_standard_repos.append(repo)
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L310 [shape=diamond] [label="non_standard_repos"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L311 [shape=rect] [label="print(f'Warning Non-Standard Repos enabled: {' '.join(non_standard_repos)}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L312 [shape=diamond] [label="not disabled_repos"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L313 [shape=rect] [label="print('PrePatchReport: Pass')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+L315 [shape=rect] [label="print(f'PrePatchReport: Pass - Non Valid Repos disabled: {' '.join(disabled_repos)}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L317 [shape=rect] [label="validate_repos('rhel_8')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+LStart_get_newKernelVersion [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L320 [shape=diamond] [label="self._newKernelVersion"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L321 [shape=ellipse] [label="self._newKernelVersion"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L323 [shape=rect] [label="os_version = self.osType
+desired_kernel_version = self.kernelVersions.get(os_version)
+available_kernels = self.get_available_kernels()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L326 [shape=diamond] [label="desired_kernel_version not in available_kernels"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L327 [shape=rect] [label="self.log(f'Desired kernel version {desired_kernel_version} not found in available kernels.')
+self.manualInterventionRequired = True
+self.failedFunctions.append('get_newKernelVersion')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L330 [shape=ellipse] [label="None"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L331 [shape=ellipse] [label="desired_kernel_version"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L333 [shape=rect] [label="self.log(f'Error in get_newKernelVersion: {e}. Please check the syntax of the linux-kernels.json file.')
+self.manualInterventionRequired = True
+self.failedFunctions.append('get_newKernelVersion')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+LStart_get_available_kernels [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L338 [shape=rect] [label="self.log('Fetching available kernels')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L340 [shape=rect] [label="result = subprocess.run([self.packageManager, 'list', 'available', 'kernel*'], capture_output=True, text=True, check=True)
+available_kernels = result.stdout.strip().split('\n')
+self.log(f'Available kernels: {available_kernels}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L343 [shape=ellipse] [label="available_kernels"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L345 [shape=rect] [label="self.log(f'Error fetching available kernels: {e.stderr}')
+self.update_prepatch_report('Manual Intervention Required: Failed to fetch available kernels.')
+self.manualInterventionRequired = True
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L348 [shape=ellipse] [label="[]"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L350 [shape=rect] [label="self.log(f'Unexpected error fetching available kernels: {e}')
+self.update_prepatch_report('Manual Intervention Required: Unexpected error while fetching available kernels.')
+self.manualInterventionRequired = True
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L353 [shape=ellipse] [label="[]"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+
+LStart_get_kernelPackages [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L356 [shape=diamond] [label="self._kernelPackages"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L357 [shape=ellipse] [label="self._kernelPackages"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L358 [shape=rect] [label="self.log('Fetching kernel packages for RHEL/CentOS, AWSLinux2, and AWSLinux2022')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L360 [shape=rect] [label="result = subprocess.run([self.packageManager, 'list', 'updates', 'kernel*'], capture_output=True, text=True, check=True)
+kernel_packages = result.stdout.strip()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L362 [shape=diamond] [label="not kernel_packages"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L363 [shape=rect] [label="self.log('No kernel packages available for update.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L364 [shape=ellipse] [label="None"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L365 [shape=rect] [label="self.log('Kernel packages: {}'.format(kernel_packages))
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L366 [shape=ellipse] [label="kernel_packages"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L368 [shape=rect] [label="self.log(f'Error fetching kernel packages: {e.stderr}')
+self.manualInterventionRequired = True
+self.failedFunctions.append('get_kernelPackages')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L371 [shape=ellipse] [label="None"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L373 [shape=rect] [label="self.log(f'Unexpected error in get_kernelPackages: {e}')
+self.manualInterventionRequired = True
+self.failedFunctions.append('get_kernelPackages')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L376 [shape=ellipse] [label="None"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+
+LStart_get_crowdstrikeVersion [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L379 [shape=rect] [label="self.log('Fetching CrowdStrike version')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L382 [shape=diamond] [label="not os.path.exists('/opt/CrowdStrike/')"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L383 [shape=rect] [label="self.log('CrowdStrike directory not found. Crowdstrike does not appear to be installed.')
+self.update_prepatch_report('Manual intervention - Crowdstrike does not appear to be installed')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L385 [shape=ellipse] [label="'CrowdStrike not installed'"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L388 [shape=rect] [label="result = subprocess.run(['/opt/CrowdStrike/falconctl', '-g', '--version'], capture_output=True, text=True, check=True)
+crowdstrike_version = result.stdout.strip()
+self.log('CrowdStrike version: {}'.format(crowdstrike_version))
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L391 [shape=ellipse] [label="crowdstrike_version"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L393 [shape=rect] [label="self.log(f'Error fetching CrowdStrike version. Error: {e.stderr}')
+self.log('Checking if the CrowdStrike service is running.')
+service_status = subprocess.run(['systemctl', 'status', 'falcon-sensor'], capture_output=True, text=True)
+self.log(f'CrowdStrike service status: {service_status.stdout}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L400 [shape=diamond] [label="'inactive' in service_status.stdout"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L401 [shape=rect] [label="self.log('CrowdStrike service is not running. Attempting to start it.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L403 [shape=rect] [label="subprocess.run(['systemctl', 'start', 'falcon-sensor'], check=True)
+self.log('CrowdStrike service started successfully.')
+time.sleep(2)
+self.log(f'Failed to start CrowdStrike service. Error: {e.stderr}')
+self.update_prepatch_report('Manual remediation - Failed to start CrowdStrike service')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L409 [shape=ellipse] [label="'CrowdStrike error'"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L413 [shape=rect] [label="result = subprocess.run(['/opt/CrowdStrike/falconctl', '-g', '--version'], capture_output=True, text=True, check=True)
+crowdstrike_version = result.stdout.strip()
+self.log('CrowdStrike version after service restart: {}'.format(crowdstrike_version))
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L416 [shape=ellipse] [label="crowdstrike_version"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L418 [shape=rect] [label="self.log('Error fetching CrowdStrike version even after restarting the service. Error: {}'.format(e.stderr))
+self.update_prepatch_report('Manual remediation - Crowdstrike Error')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L420 [shape=ellipse] [label="'CrowdStrike error'"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L423 [shape=rect] [label="self.log(f'Unexpected error in get_crowdstrikeVersion: {e}')
+self.update_prepatch_report('Manual remediation - Unexpected error in get_crowdstrikeVersion')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L425 [shape=ellipse] [label="'CrowdStrike error'"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+
+LStart_get_rfmState [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L428 [shape=diamond] [label="not self._crowdstrikeVersion"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L429 [shape=rect] [label="self.log('CrowdStrike version not found. Skipping RFM state check.')
+self.failedFunctions.append('get_rfmState')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L431 [shape=ellipse] [label="'Unknown'"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L433 [shape=rect] [label="self.log('Fetching RFM state')
+cmd = ['/opt/CrowdStrike/falconctl', '-g', '--rfm-state']
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L436 [shape=rect] [label="rfm_state = self.subprocess_output(cmd)
+self.log(f'RFM state: {rfm_state}')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L439 [shape=diamond] [label="rfm_state == 'True'"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L440 [shape=rect] [label="self.log('RFM state is True. Kernel is out of alignment with Crowdstrike.')
+self.update_prepatch_report('Manual Remediation - Kernel out of alignment with Crowdstrike. RFM state True')
+self.manualInterventionRequired = True
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L443 [shape=ellipse] [label="'RFM True'"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L444 [shape=ellipse] [label="rfm_state"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L446 [shape=rect] [label="self.log('Error fetching RFM state. Check if CrowdStrike is properly installed and running.')
+self.manualInterventionRequired = True
+self.failedFunctions.append('get_rfmState')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L449 [shape=ellipse] [label="'Error'"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+
+LStart_dry_run_patch [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L452 [shape=rect] [label="self.log('Starting dry-run for kernel update')
+new_kernel_version = self.get_newKernelVersion()
+patchme_file = f'/root/{self.changeNumber}/patchme.sh'
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L456 [shape=rect] [label="open(patchme_file, 'w')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L457 [shape=rect] [label="f.write('#!/bin/bash\n')
+f.write(f'newkernel='{new_kernel_version}'\n')
+f.write('yum --assumeno install $(while read p; do printf '$p-$newkernel '; done < /root/{self.changeNumber}/kernel_packages)\n')
+f.write('yum --assumeno --security --exclude=kernel* update\n')
+result = subprocess.run(['bash', patchme_file])
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L465 [shape=diamond] [label="result.returncode != 0"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L466 [shape=rect] [label="self.log('Dry-run failed')
+self.manualInterventionRequired = True
+self.failedFunctions.append('dry_run_patch')
+self.update_prepatch_report('Manual Intervention Required - Dry Run Fail')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L471 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L472 [shape=ellipse] [label="True"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+L474 [shape=rect] [label="self.log(f'Error in dry_run_patch: {e}')
+self.manualInterventionRequired = True
+self.failedFunctions.append('dry_run_patch')
+self.update_prepatch_report('Manual Intervention Required - Unknown Error')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L479 [shape=ellipse] [label="False"] [type="RETURN"] [style=filled fillcolor="#BAD7E9" fontcolor=black]
+
+LStart_stage_patch_script [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L482 [shape=rect] [label="patchme_file = f'/root/{self.changeNumber}/patchme.sh'
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L483 [shape=rect] [label="open(patchme_file, 'r')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L484 [shape=rect] [label="content = f.read().replace('--assumeno', '-y')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L485 [shape=rect] [label="open(patchme_file, 'w')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L486 [shape=rect] [label="f.write(content)
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L488 [shape=rect] [label="os.chmod(patchme_file, 493)
+self.update_prepatch_report('patchme.sh is executable')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+LStart_generate_report [shape=ellipse] [label="Start"] [type="START"] [style=filled fillcolor="#0B2447" fontcolor=white]
+L493 [shape=rect] [label="self.log('Generating report')
+qc_pass_status = 'PASS' if not self.manualInterventionRequired else f'FAIL on {', '.join(self.failedFunctions)}'
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L498 [shape=rect] [label="open(self.prePatchReportFilepath, 'w')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L500 [shape=rect] [label="f.write('instance_id,os_version,NewKernelVersion,available_kernels,kernel_packages,crowdstrike_version,rfm_state,/var_space_GB,script_startTime,script_end_time,intervention_required,QC Pass\n')
+f.write('{},{},{},{},{},{},{},{},{},{},{},{}'.format(self.get_instanceId(), self.identify_os(), self.get_newKernelVersion(), self.get_available_kernels(), self.get_kernelPackages(), self.get_crowdstrikeVersion(), self.get_rfmState(), self.csvOutput[-1], self.startTime, datetime.now(), 'Manual Intervention Required' if self.manualInterventionRequired else 'No intervention required', qc_pass_status))
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L517 [shape=rect] [label="self.log('Report generated')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L519 [shape=diamond] [label="__name__ == '__main__'"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L520 [shape=rect] [label="changeNumber = os.environ.get('CHANGE_NUMBER')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L521 [shape=diamond] [label="not changeNumber"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L522 [shape=rect] [label="print('CHANGE_NUMBER environment variable not set.')
+sys.exit(1)
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L524 [shape=rect] [label="check = PrePatchCheck(changeNumber)
+rfm_state = check.get_rfmState()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L527 [shape=diamond] [label="rfm_state != 'RFM True'"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L528 [shape=diamond] [label="check.dry_run_patch()"] [type="CONDITIONS"] [style=filled fillcolor="#ECB365" fontcolor=black]
+L529 [shape=rect] [label="check.stage_patch_script()
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+
+L531 [shape=rect] [label="check.log('Skipping dry_run_patch due to RFM state being True.')
+"] [type="STATEMENT"] [style=filled fillcolor="#FFC6D3" fontcolor=black]
+L999999 [shape=ellipse] [label="End"] [type="END"] [style=filled fillcolor="#F45050" fontcolor=white]
+
+subgraph cluster___init__ {
+label = "def __init__(self, changeNumber)";
+
+LStart___init__ -> L17    [source="@current_to_next"]
+L17 -> L49    [source="@current_to_next"]
+
+
+subgraph cluster_initialize_variables {
+label = "def initialize_variables(self, changeNumber)";
+
+LStart_initialize_variables -> L53    [source="@current_to_next"]
+
+
+subgraph cluster_log_initial_state {
+label = "def log_initial_state(self)";
+
+LStart_log_initial_state -> L72    [source="@current_to_next"]
+
+
+subgraph cluster_run_pre_patch_checks {
+label = "def run_pre_patch_checks(self)";
+
+LStart_run_pre_patch_checks -> L78    [source="@current_to_next"]
+L78 -> L81    [source="@current_to_next"]
+L81 -> L82 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L82 -> L83    [source="@current_to_next"]
+L83 -> L999999    [source="@return_to_end"]
+L81 -> L86 [color=red] [fontcolor=red] [label="false"] [source="@if_to_prev_sibling"]
+L86 -> L87 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L87 -> L88    [source="@current_to_next"]
+L88 -> L999999    [source="@return_to_end"]
+L86 -> L91 [color=red] [fontcolor=red] [label="false"] [source="@if_to_prev_sibling"]
+L91 -> L92 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L91 -> L96 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L92 -> L93    [source="@current_to_next"]
+L93 -> L999999    [source="@return_to_end"]
+L96 -> L97    [source="@current_to_next"]
+L97 -> L98 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L97 -> L102 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L98 -> L99    [source="@current_to_next"]
+L99 -> L999999    [source="@return_to_end"]
+L102 -> L103    [source="@current_to_next"]
+L103 -> L104 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L103 -> L108 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L104 -> L105    [source="@current_to_next"]
+L105 -> L999999    [source="@return_to_end"]
+L108 -> L109    [source="@current_to_next"]
+L109 -> L110 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L109 -> L114 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L110 -> L111    [source="@current_to_next"]
+L111 -> L999999    [source="@return_to_end"]
+L114 -> L115    [source="@current_to_next"]
+L115 -> L116 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L115 -> L120 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L116 -> L117    [source="@current_to_next"]
+L117 -> L999999    [source="@return_to_end"]
+L120 -> L121    [source="@current_to_next"]
+L121 -> L122 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L121 -> L126 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L122 -> L123    [source="@current_to_next"]
+L123 -> L999999    [source="@return_to_end"]
+L126 -> L127    [source="@current_to_next"]
+L127 -> L128 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L127 -> L132 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L128 -> L129    [source="@current_to_next"]
+L129 -> L999999    [source="@return_to_end"]
+L132 -> L133    [source="@current_to_next"]
+L133 -> L134 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L133 -> L137 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L134 -> L135    [source="@current_to_next"]
+L135 -> L999999    [source="@return_to_end"]
+L137 -> L138    [source="@current_to_next"]
+L138 -> L999999    [source="@return_to_end"]
+
+subgraph cluster_load_config {
+label = "def load_config(self)";
+
+LStart_load_config -> L141    [source="@current_to_next"]
+L141 -> L149    [source="@current_to_next"]
+
+
+
+
+
+
+subgraph cluster_setup_logging_and_output_paths {
+label = "def setup_logging_and_output_paths(self)";
+
+LStart_setup_logging_and_output_paths -> L174    [source="@current_to_next"]
+
+
+subgraph cluster_log {
+label = "def log(self, message)";
+
+LStart_log -> L184    [source="@current_to_next"]
+
+
+subgraph cluster_subprocess_output {
+label = "def subprocess_output(self, cmd)";
+
+LStart_subprocess_output -> L189    [source="@current_to_next"]
+L189 -> L191    [source="@current_to_next"]
+L191 -> L194    [source="@current_to_next"]
+L194 -> L999999    [source="@return_to_end"]
+L196 -> L197    [source="@current_to_next"]
+
+L199 -> L200    [source="@current_to_next"]
+
+
+subgraph cluster_update_critical_failure_report {
+label = "def update_critical_failure_report(self)";
+
+LStart_update_critical_failure_report -> L203    [source="@current_to_next"]
+L203 -> L204    [source="@current_to_next"]
+
+
+subgraph cluster_get_instanceId {
+label = "def get_instanceId(self)";
+
+LStart_get_instanceId -> L207    [source="@current_to_next"]
+{rank=same; L207; L208}; source="@condition_and_return"
+L207 -> L208 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L207 -> L210 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L208 -> L999999    [source="@return_to_end"]
+L210 -> L211    [source="@current_to_next"]
+L211 -> L212 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L212 -> L213    [source="@current_to_next"]
+L213 -> L999999    [source="@return_to_end"]
+L211 -> L215 [color=red] [fontcolor=red] [label="false"] [source="@elif_to_else"]
+L215 -> L218    [source="@current_to_next"]
+L218 -> L999999    [source="@return_to_end"]
+
+subgraph cluster_identify_os {
+label = "def identify_os(self)";
+
+LStart_identify_os -> L222    [source="@current_to_next"]
+L222 -> L223 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L223 -> L224    [source="@current_to_next"]
+L224 -> L225    [source="@current_to_next"]
+L225 -> L226 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+
+L225 -> L228 [color=red] [fontcolor=red] [label="false"] [source="@elif_to_else"]
+L228 -> L229    [source="@current_to_next"]
+L222 -> L229 [color=red] [fontcolor=red] [label="false"] [source="@if_to_prev_sibling"]
+L229 -> L230 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L230 -> L231    [source="@current_to_next"]
+L231 -> L232    [source="@current_to_next"]
+L232 -> L233 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L233 -> L234    [source="@current_to_next"]
+L232 -> L234 [color=red] [fontcolor=red] [label="false"] [source="@if_to_prev_sibling"]
+L234 -> L235 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+
+L234 -> L237 [color=red] [fontcolor=red] [label="false"] [source="@elif_to_else"]
+
+L229 -> L239 [color=red] [fontcolor=red] [label="false"] [source="@elif_to_else"]
+
+L241 -> L251    [source="@current_to_next"]
+L251 -> L999999    [source="@return_to_end"]
+
+subgraph cluster_check_disk_space {
+label = "def check_disk_space(self)";
+
+LStart_check_disk_space -> L255    [source="@current_to_next"]
+L255 -> L258    [source="@current_to_next"]
+L258 -> L259 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L258 -> L261 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L259 -> L260    [source="@current_to_next"]
+L260 -> L999999    [source="@return_to_end"]
+L261 -> L999999    [source="@return_to_end"]
+L263 -> L266    [source="@current_to_next"]
+L266 -> L999999    [source="@return_to_end"]
+L268 -> L271    [source="@current_to_next"]
+L271 -> L999999    [source="@return_to_end"]
+
+subgraph cluster_validate_repos {
+label = "def validate_repos(os_version)";
+
+LStart_validate_repos -> L275    [source="@current_to_next"]
+L275 -> L276    [source="@current_to_next"]
+L276 -> L279    [source="@current_to_next"]
+L279 -> L284    [source="@current_to_next"]
+
+
+L291 -> L295    [source="@current_to_next"]
+L295 -> L296    [source="@loop_to_next"]
+L295 -> L305 [color=red] [fontcolor=red] [label="out"] [source="@loop_to_next_sibling"]
+L296 -> L295 [color=red] [fontcolor=red] [label="false"] [source="@last_if_to_parent"]
+L298 -> L295 [color=blue] [fontcolor=blue] [label="loop"] [source="@last_to_loop"]
+L296 -> L298 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+
+L305 -> L306    [source="@loop_to_next"]
+L305 -> L310 [color=red] [fontcolor=red] [label="out"] [source="@loop_to_next_sibling"]
+L306 -> L305 [color=red] [fontcolor=red] [label="false"] [source="@last_if_to_parent"]
+L307 -> L305 [color=blue] [fontcolor=blue] [label="loop"] [source="@last_to_loop"]
+L306 -> L307 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+
+L310 -> L311 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L311 -> L312    [source="@current_to_next"]
+L310 -> L312 [color=red] [fontcolor=red] [label="false"] [source="@if_to_prev_sibling"]
+L312 -> L313 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+
+L312 -> L315 [color=red] [fontcolor=red] [label="false"] [source="@elif_to_else"]
+L315 -> L317    [source="@current_to_next"]
+
+
+subgraph cluster_get_newKernelVersion {
+label = "def get_newKernelVersion(self)";
+
+LStart_get_newKernelVersion -> L320    [source="@current_to_next"]
+{rank=same; L320; L321}; source="@condition_and_return"
+L320 -> L321 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L321 -> L999999    [source="@return_to_end"]
+L323 -> L326    [source="@current_to_next"]
+L326 -> L327 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L326 -> L331 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L327 -> L330    [source="@current_to_next"]
+L330 -> L999999    [source="@return_to_end"]
+L331 -> L999999    [source="@return_to_end"]
+
+
+subgraph cluster_get_available_kernels {
+label = "def get_available_kernels(self)";
+
+LStart_get_available_kernels -> L338    [source="@current_to_next"]
+L338 -> L340    [source="@current_to_next"]
+L340 -> L343    [source="@current_to_next"]
+L343 -> L999999    [source="@return_to_end"]
+L345 -> L348    [source="@current_to_next"]
+L348 -> L999999    [source="@return_to_end"]
+L350 -> L353    [source="@current_to_next"]
+L353 -> L999999    [source="@return_to_end"]
+
+subgraph cluster_get_kernelPackages {
+label = "def get_kernelPackages(self)";
+
+LStart_get_kernelPackages -> L356    [source="@current_to_next"]
+{rank=same; L356; L357}; source="@condition_and_return"
+L356 -> L357 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L356 -> L358 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L357 -> L999999    [source="@return_to_end"]
+L358 -> L360    [source="@current_to_next"]
+L360 -> L362    [source="@current_to_next"]
+L362 -> L363 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L362 -> L365 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L363 -> L364    [source="@current_to_next"]
+L364 -> L999999    [source="@return_to_end"]
+L365 -> L366    [source="@current_to_next"]
+L366 -> L999999    [source="@return_to_end"]
+L368 -> L371    [source="@current_to_next"]
+L371 -> L999999    [source="@return_to_end"]
+L373 -> L376    [source="@current_to_next"]
+L376 -> L999999    [source="@return_to_end"]
+
+subgraph cluster_get_crowdstrikeVersion {
+label = "def get_crowdstrikeVersion(self)";
+
+LStart_get_crowdstrikeVersion -> L379    [source="@current_to_next"]
+L379 -> L382    [source="@current_to_next"]
+L382 -> L383 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L383 -> L385    [source="@current_to_next"]
+L385 -> L999999    [source="@return_to_end"]
+L388 -> L391    [source="@current_to_next"]
+L391 -> L999999    [source="@return_to_end"]
+L393 -> L400    [source="@current_to_next"]
+L400 -> L401 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L400 -> L423 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L401 -> L403    [source="@current_to_next"]
+L403 -> L409    [source="@current_to_next"]
+L409 -> L999999    [source="@return_to_end"]
+L413 -> L416    [source="@current_to_next"]
+L416 -> L999999    [source="@return_to_end"]
+L418 -> L420    [source="@current_to_next"]
+L420 -> L999999    [source="@return_to_end"]
+L423 -> L425    [source="@current_to_next"]
+L425 -> L999999    [source="@return_to_end"]
+
+subgraph cluster_get_rfmState {
+label = "def get_rfmState(self)";
+
+LStart_get_rfmState -> L428    [source="@current_to_next"]
+L428 -> L429 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L428 -> L433 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L429 -> L431    [source="@current_to_next"]
+L431 -> L999999    [source="@return_to_end"]
+L433 -> L436    [source="@current_to_next"]
+L436 -> L439    [source="@current_to_next"]
+L439 -> L440 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L439 -> L444 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L440 -> L443    [source="@current_to_next"]
+L443 -> L999999    [source="@return_to_end"]
+L444 -> L999999    [source="@return_to_end"]
+L446 -> L449    [source="@current_to_next"]
+L449 -> L999999    [source="@return_to_end"]
+
+subgraph cluster_dry_run_patch {
+label = "def dry_run_patch(self)";
+
+LStart_dry_run_patch -> L452    [source="@current_to_next"]
+L452 -> L456    [source="@current_to_next"]
+L456 -> L457    [source="@current_to_next"]
+L457 -> L465    [source="@current_to_next"]
+L465 -> L466 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L465 -> L472 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L466 -> L471    [source="@current_to_next"]
+L471 -> L999999    [source="@return_to_end"]
+L472 -> L999999    [source="@return_to_end"]
+L474 -> L479    [source="@current_to_next"]
+L479 -> L999999    [source="@return_to_end"]
+
+subgraph cluster_stage_patch_script {
+label = "def stage_patch_script(self)";
+
+LStart_stage_patch_script -> L482    [source="@current_to_next"]
+L482 -> L483    [source="@current_to_next"]
+L483 -> L484    [source="@current_to_next"]
+L484 -> L485    [source="@current_to_next"]
+L485 -> L486    [source="@current_to_next"]
+L486 -> L488    [source="@current_to_next"]
+
+
+subgraph cluster_generate_report {
+label = "def generate_report(self)";
+
+LStart_generate_report -> L493    [source="@current_to_next"]
+L493 -> L498    [source="@current_to_next"]
+L498 -> L500    [source="@current_to_next"]
+L500 -> L517    [source="@current_to_next"]
+L517 -> L519    [source="@current_to_next"]
+L519 -> L520 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L520 -> L521    [source="@current_to_next"]
+L521 -> L522 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L521 -> L524 [color=red] [fontcolor=red] [label="false"] [source="@if_to_next_sibling"]
+L522 -> L524    [source="@current_to_next"]
+L524 -> L527    [source="@current_to_next"]
+L527 -> L528 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+L528 -> L529 [color=green] [fontcolor=green] [label="true"] [source="@if_to_next_node"]
+
+L527 -> L531 [color=red] [fontcolor=red] [label="false"] [source="@elif_to_else"]
+L531 -> L999999    [source="@if_last_child_to_end_node"]
+
+}
+
+
+}
