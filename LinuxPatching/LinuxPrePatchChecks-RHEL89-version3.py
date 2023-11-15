@@ -53,25 +53,25 @@ class PrePatchCheck:
                 self.update_critical_failure_report()
                 sys.exit(1)
 
-def initialize_variables(self, changeNumber):
-    self.changeNumber = changeNumber
-    self.kernelVersions = {}
-    self.validRepositories = []
-    self.startTime = datetime.now()
-    self.failedFunctions = []
-    self.packageManager = 'dnf'
-    self.manualInterventionNeeded = False
-    self.outputDirectory = ""
-    self.debugLogFilepath = ""
-    self.prePatchReportFilepath = ""
-    self.csvOutput = []
-    self._instanceId = None
-    self._newKernelVersion = None
-    self._kernelPackages = None
-    self._crowdstrikeVersion = None
-    self._rfmState = None
-    self.failedChecks = []
-    self.manualInterventionRequired = False  # Add this line
+    def initialize_variables(self, changeNumber):
+        self.changeNumber = changeNumber
+        self.kernelVersions = {}
+        self.validRepositories = []
+        self.startTime = datetime.now()
+        self.failedFunctions = []
+        self.packageManager = 'dnf'
+        self.manualInterventionNeeded = False
+        self.outputDirectory = ""
+        self.debugLogFilepath = ""
+        self.prePatchReportFilepath = ""
+        self.csvOutput = []
+        self._instanceId = None
+        self._newKernelVersion = None
+        self._kernelPackages = None
+        self._crowdstrikeVersion = None
+        self._rfmState = None
+        self.failedChecks = []
+        self.manualInterventionRequired = False  # Add this line
 
 
     def log_initial_state(self):
