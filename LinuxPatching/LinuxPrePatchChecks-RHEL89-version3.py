@@ -53,6 +53,7 @@ class PrePatchCheck:
                 self.update_critical_failure_report()
                 sys.exit(1)
 
+
     def initialize_variables(self, changeNumber):
         self.changeNumber = changeNumber
         self.kernelVersions = {}
