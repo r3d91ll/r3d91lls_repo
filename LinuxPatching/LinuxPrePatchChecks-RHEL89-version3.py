@@ -52,7 +52,7 @@ class PrePatchCheck:
         except CriticalSubprocessError:
                 self.update_critical_failure_report()
                 sys.exit(1)
-    
+
     def initialize_variables(self, changeNumber):
         self.changeNumber = changeNumber
         self.kernelVersions = {}
@@ -163,14 +163,14 @@ class PrePatchCheck:
             data = json.loads(config_data)
             self.kernelVersions = data.get('kernel_list', {})
             self.validRepositories = data.get('valid_repos', [])
-        except json.JSONDecodeError:
+        except ValueError:
             self.log("Failed to parse the fetched configurations as JSON.")
             self.update_prepatch_report("Manual Intervention Required: JSON ERROR")
             self.manualInterventionRequired = True
         except Exception as e:
             self.log(f"An unexpected error occurred while parsing the JSON data: {e}")
             self.manualInterventionRequired = True
-            
+
     def setup_logging_and_output_paths(self):
         self.outputDirectory = os.path.join("/root", self.changeNumber)
         self.debugLogFilepath = os.path.join(self.outputDirectory, "debug.log")
@@ -187,8 +187,8 @@ class PrePatchCheck:
     def subprocess_output(self, cmd):
         self.log(f"Executing command: {' '.join(cmd)}")  # Log the command being issued
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            output = result.stdout.strip()
+            result = subprocess.check_output(cmd, universal_newlines=True)
+            output = result.strip()
             self.log(f"Command output: {output}")  # Log the command output
             return output
         except subprocess.CalledProcessError as e:
@@ -197,7 +197,7 @@ class PrePatchCheck:
         except Exception as e:
             self.log(f"Error executing command: {e}")
             raise CriticalSubprocessError("Unexpected error during command execution.")
-    
+
     def update_critical_failure_report(self):
         with open(self.prePatchReportFilepath, 'w') as f:
             f.write("Critical Python Failure. Check logs for details.")
@@ -217,7 +217,7 @@ class PrePatchCheck:
         else:
             self.log(f"Instance id: {instance_id}")
             return instance_id
-    
+
     def identify_os(self):
         try:
             if os.path.isfile("/etc/redhat-release"):
@@ -237,7 +237,7 @@ class PrePatchCheck:
                     else:
                         raise ValueError("Unexpected content in /etc/system-release.")
             else:
-                raise FileNotFoundError("OS identification files not found.")
+                raise IOError("OS identification files not found.")
         except (IOError, PermissionError) as e:
             self.log(f"Error reading OS identification file: {e}")
             self.osType = "Unknown"
@@ -250,7 +250,7 @@ class PrePatchCheck:
             self.manualInterventionRequired = True
             self.failedFunctions.append('identify_os')
         return self.osType
-    
+
     def check_disk_space(self):
         try:
             stat = os.statvfs('/var')
@@ -270,11 +270,11 @@ class PrePatchCheck:
             self.failedChecks.append(f"Disk space check failed due to error: {e}")
             self.csvOutput.append("N/A")
             return False
-    
-    def validate_repos(os_version):
+
+    def validate_repos(self, os_version):
         try:
-            result = subprocess.run(['yum', 'repo', 'list', 'enabled'], capture_output=True, text=True)
-            enabled_repos = result.stdout.splitlines()
+            result = subprocess.check_output(['yum', 'repo', 'list', 'enabled'], universal_newlines=True)
+            enabled_repos = result.splitlines()
         except Exception as e:
             print(f"Error getting list of enabled repositories: {e}")
             return
@@ -285,8 +285,6 @@ class PrePatchCheck:
 
         print("Installed Repositories:")
         print(' '.join(repo_names))
-
-    validate_repos('rhel_8')
 
     def get_newKernelVersion(self):
         if self._newKernelVersion:
@@ -311,8 +309,8 @@ class PrePatchCheck:
     def get_available_kernels(self): 
         self.log("Fetching available kernels")
         try:
-            result = subprocess.run([self.packageManager, "list", "available", "kernel*"], capture_output=True, text=True, check=True)
-            available_kernels = result.stdout.strip().split('\n')
+            result = subprocess.check_output([self.packageManager, "list", "available", "kernel*"], universal_newlines=True)
+            available_kernels = result.strip().split('\n')
             self.log(f"Available kernels: {available_kernels}")
             return available_kernels
         except subprocess.CalledProcessError as e:
@@ -331,8 +329,8 @@ class PrePatchCheck:
             return self._kernelPackages
         self.log("Fetching kernel packages for RHEL/CentOS, AWSLinux2, and AWSLinux2022")
         try:
-            result = subprocess.run([self.packageManager, "list", "updates", "kernel*"], capture_output=True, text=True, check=True)
-            kernel_packages = result.stdout.strip()
+            result = subprocess.check_output([self.packageManager, "list", "updates", "kernel*"], universal_newlines=True)
+            kernel_packages = result.strip()
             if not kernel_packages:
                 self.log("No kernel packages available for update.")
                 return None
@@ -348,7 +346,7 @@ class PrePatchCheck:
             self.manualInterventionRequired = True
             self.failedFunctions.append('get_kernelPackages')
             return None
-    
+
     def get_crowdstrikeVersion(self):
         self.log("Fetching CrowdStrike version")
 
@@ -359,8 +357,8 @@ class PrePatchCheck:
             return "CrowdStrike not installed"
 
         try:
-            result = subprocess.run(["/opt/CrowdStrike/falconctl", "-g", "--version"], capture_output=True, text=True, check=True)
-            crowdstrike_version = result.stdout.strip()
+            result = subprocess.check_output(["/opt/CrowdStrike/falconctl", "-g", "--version"], universal_newlines=True)
+            crowdstrike_version = result.strip()
             self.log("CrowdStrike version: {}".format(crowdstrike_version))
             return crowdstrike_version
         except subprocess.CalledProcessError as e:
@@ -368,13 +366,13 @@ class PrePatchCheck:
             self.log("Checking if the CrowdStrike service is running.")
 
             # Check if the CrowdStrike service is running
-            service_status = subprocess.run(["systemctl", "status", "falcon-sensor"], capture_output=True, text=True)
-            self.log(f"CrowdStrike service status: {service_status.stdout}")
+            service_status = subprocess.check_output(["systemctl", "status", "falcon-sensor"], universal_newlines=True)
+            self.log(f"CrowdStrike service status: {service_status}")
 
-            if "inactive" in service_status.stdout:
+            if "inactive" in service_status:
                 self.log("CrowdStrike service is not running. Attempting to start it.")
                 try:
-                    subprocess.run(["systemctl", "start", "falcon-sensor"], check=True)
+                    subprocess.check_call(["systemctl", "start", "falcon-sensor"])
                     self.log("CrowdStrike service started successfully.")
                     time.sleep(2)  # Wait for 2 seconds before trying to fetch the version again
                 except subprocess.CalledProcessError as e:
@@ -384,8 +382,8 @@ class PrePatchCheck:
 
             # Try to fetch the CrowdStrike version again
             try:
-                result = subprocess.run(["/opt/CrowdStrike/falconctl", "-g", "--version"], capture_output=True, text=True, check=True)
-                crowdstrike_version = result.stdout.strip()
+                result = subprocess.check_output(["/opt/CrowdStrike/falconctl", "-g", "--version"], universal_newlines=True)
+                crowdstrike_version = result.strip()
                 self.log("CrowdStrike version after service restart: {}".format(crowdstrike_version))
                 return crowdstrike_version
             except subprocess.CalledProcessError as e:
@@ -397,7 +395,7 @@ class PrePatchCheck:
             self.log(f"Unexpected error in get_crowdstrikeVersion: {e}")
             self.update_prepatch_report("Manual remediation - Unexpected error in get_crowdstrikeVersion")
             return "CrowdStrike error"
-                        
+
     def get_rfmState(self):
         if not self._crowdstrikeVersion:  # Check if CrowdStrike version was fetched successfully
             self.log("CrowdStrike version not found. Skipping RFM state check.")
@@ -409,7 +407,7 @@ class PrePatchCheck:
         try:
             rfm_state = self.subprocess_output(cmd)
             self.log(f"RFM state: {rfm_state}")
-            
+
             if rfm_state == "True":  # Check if RFM state is True
                 self.log("RFM state is True. Kernel is out of alignment with Crowdstrike.")
                 self.update_prepatch_report("Manual Remediation - Kernel out of alignment with Crowdstrike. RFM state True")
@@ -438,14 +436,7 @@ class PrePatchCheck:
 
         # Execute the patchme.sh script as a dry run
         try:
-            result = subprocess.run(["bash", patchme_file])
-            if result.returncode != 0:
-                self.log("Dry-run failed")
-                self.manualInterventionRequired = True
-                self.failedFunctions.append('dry_run_patch')
-                # Update PrePatchReport
-                self.update_prepatch_report("Manual Intervention Required - Dry Run Fail")
-                return False
+            subprocess.check_call(["bash", patchme_file])
             return True
         except Exception as e:
             self.log(f"Error in dry_run_patch: {e}")
@@ -505,7 +496,7 @@ if __name__ == "__main__":
         print("CHANGE_NUMBER environment variable not set.")
         sys.exit(1)
     check = PrePatchCheck(changeNumber)
-    
+
     rfm_state = check.get_rfmState()
     if rfm_state != "RFM True":
         if check.dry_run_patch():
