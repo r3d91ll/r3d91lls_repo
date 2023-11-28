@@ -20,7 +20,7 @@ class PrePatchCheck:
         try:
             self.initialize_variables(changeNumber)
             self.run_pre_patch_checks()
-            self.setup_logging_and_output_paths()
+            self.setup_logging_and_output_paths()``
             self.log_initial_state()
             self.generate_report()
             self.load_config()
