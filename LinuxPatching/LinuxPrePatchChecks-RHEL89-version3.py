@@ -7,6 +7,7 @@ import subprocess
 from datetime import datetime
 import sys
 import re
+import time
 import requests
 import urllib.request
 import csv
@@ -20,7 +21,7 @@ class PrePatchCheck:
         try:
             self.initialize_variables(changeNumber)
             self.run_pre_patch_checks()
-            self.setup_logging_and_output_paths()``
+            self.setup_logging_and_output_paths()
             self.log_initial_state()
             self.generate_report()
             self.load_config()
@@ -131,7 +132,10 @@ class PrePatchCheck:
 
         # Fetch CrowdStrike version
         crowdstrike_version = self.get_crowdstrikeVersion()
-        if crowdstrike_version == "CrowdStrike not installed" or crowdstrike_version == "CrowdStrike error":
+        if crowdstrike_version in [
+            "CrowdStrike not installed",
+            "CrowdStrike error",
+        ]:
             self.log("Failed to fetch CrowdStrike version. Exiting.")
             return False
 
@@ -153,9 +157,10 @@ class PrePatchCheck:
             with urllib.request.urlopen(url) as response:
                 config_data = response.read().decode()
         except urllib.error.URLError:
-            self.log("Failed to fetch configurations from the URL.")
-            self.update_prepatch_report("Manual Intervention Required: Failed to download linux-kernels.json")
-            self.manualInterventionRequired = True
+            self._extracted_from_load_config_10(
+                "Failed to fetch configurations from the URL.",
+                "Manual Intervention Required: Failed to download linux-kernels.json",
+            )
             return
         except Exception as e:
             self.log(f"An unexpected error occurred while fetching the data: {e}")
@@ -167,12 +172,19 @@ class PrePatchCheck:
             self.kernelVersions = data.get('kernel_list', {})
             self.validRepositories = data.get('valid_repos', [])
         except ValueError:
-            self.log("Failed to parse the fetched configurations as JSON.")
-            self.update_prepatch_report("Manual Intervention Required: JSON ERROR")
-            self.manualInterventionRequired = True
+            self._extracted_from_load_config_10(
+                "Failed to parse the fetched configurations as JSON.",
+                "Manual Intervention Required: JSON ERROR",
+            )
         except Exception as e:
             self.log(f"An unexpected error occurred while parsing the JSON data: {e}")
             self.manualInterventionRequired = True
+
+    # TODO Rename this here and in `load_config`
+    def _extracted_from_load_config_10(self, arg0, arg1):
+        self.log(arg0)
+        self.update_prepatch_report(arg1)
+        self.manualInterventionRequired = True
 
     def setup_logging_and_output_paths(self):
         self.outputDirectory = os.path.join("/root", self.changeNumber)
@@ -185,7 +197,7 @@ class PrePatchCheck:
     def log(self, message):
         """Log messages with a timestamp."""
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        logging.debug(timestamp + ": " + message)
+        logging.debug(f"{timestamp}: {message}")
 
     def subprocess_output(self, cmd):
         self.log(f"Executing command: {' '.join(cmd)}")  # Log the command being issued
@@ -214,9 +226,7 @@ class PrePatchCheck:
                 instance_id = response.read().decode()
         except urllib.error.URLError as e:
             self.log(f"Error fetching instance ID: {e}")
-            self.manualInterventionRequired = True
-            self.failedFunctions.append('get_instanceId')
-            return "Unknown"
+            return self._extracted_from_get_rfmState_10('get_instanceId', "Unknown")
         else:
             self.log(f"Instance id: {instance_id}")
             return instance_id
@@ -226,10 +236,7 @@ class PrePatchCheck:
             if os.path.isfile("/etc/redhat-release"):
                 with open("/etc/redhat-release", "r") as file:
                     release_info = file.read()
-                    if "Fedora" in release_info:
-                        self.osType = "Fedora"
-                    else:
-                        self.osType = "RHEL/CentOS"
+                    self.osType = "Fedora" if "Fedora" in release_info else "RHEL/CentOS"
             elif os.path.isfile("/etc/system-release"):
                 with open("/etc/system-release", "r") as file:
                     release_info = file.read()
@@ -264,15 +271,20 @@ class PrePatchCheck:
                 return False
             return True
         except OSError as e:
-            self.log(f"File system error when checking disk space: {e}")
-            self.failedChecks.append(f"Disk space check failed due to error: {e}")
-            self.csvOutput.append("N/A")
-            return False
+            return self._extracted_from_check_disk_space_11(
+                'File system error when checking disk space: ', e
+            )
         except Exception as e:
-            self.log(f"Unexpected error in check_disk_space: {e}")
-            self.failedChecks.append(f"Disk space check failed due to error: {e}")
-            self.csvOutput.append("N/A")
-            return False
+            return self._extracted_from_check_disk_space_11(
+                'Unexpected error in check_disk_space: ', e
+            )
+
+    # TODO Rename this here and in `check_disk_space`
+    def _extracted_from_check_disk_space_11(self, arg0, e):
+        self.log(f"{arg0}{e}")
+        self.failedChecks.append(f"Disk space check failed due to error: {e}")
+        self.csvOutput.append("N/A")
+        return False
 
     def validate_repos(self, os_version):
         try:
@@ -293,21 +305,35 @@ class PrePatchCheck:
         if self._newKernelVersion:
             return self._newKernelVersion
         try:
-            os_version = self.osType
-            desired_kernel_version = self.kernelVersions.get(os_version)
-            if not self._available_kernels:
-                self._available_kernels = self.get_available_kernels()
-            if desired_kernel_version not in self._available_kernels:
-                self.log(f"Desired kernel version {desired_kernel_version} not found in available kernels.")
-                self.manualInterventionRequired = True
-                self.failedFunctions.append('get_newKernelVersion')
-                return None  # or raise an exception
-            self._newKernelVersion = desired_kernel_version
-            return desired_kernel_version
+            return self._extracted_from_get_newKernelVersion_5()
         except Exception as e:
-            self.log(f"Error in get_newKernelVersion: {e}. Please check the syntax of the linux-kernels.json file.")
-            self.manualInterventionRequired = True
-            self.failedFunctions.append('get_newKernelVersion')
+            self._extracted_from_get_newKernelVersion_10(
+                'Error in get_newKernelVersion: ',
+                e,
+                '. Please check the syntax of the linux-kernels.json file.',
+            )
+
+    # TODO Rename this here and in `get_newKernelVersion`
+    def _extracted_from_get_newKernelVersion_5(self):
+        os_version = self.osType
+        desired_kernel_version = self.kernelVersions.get(os_version)
+        if not self._available_kernels:
+            self._available_kernels = self.get_available_kernels()
+        if desired_kernel_version not in self._available_kernels:
+            self._extracted_from_get_newKernelVersion_10(
+                'Desired kernel version ',
+                desired_kernel_version,
+                ' not found in available kernels.',
+            )
+            return None  # or raise an exception
+        self._newKernelVersion = desired_kernel_version
+        return desired_kernel_version
+
+    # TODO Rename this here and in `get_newKernelVersion`
+    def _extracted_from_get_newKernelVersion_10(self, arg0, arg1, arg2):
+        self.log(f"{arg0}{arg1}{arg2}")
+        self.manualInterventionRequired = True
+        self.failedFunctions.append('get_newKernelVersion')
 
     def get_available_kernels(self): 
         self.log("Fetching available kernels")
@@ -318,14 +344,20 @@ class PrePatchCheck:
             return available_kernels
         except subprocess.CalledProcessError as e:
             self.log(f"Error fetching available kernels: {e.stderr}")
-            self.update_prepatch_report("Manual Intervention Required: Failed to fetch available kernels.")
-            self.manualInterventionRequired = True
-            return []
+            return self._extracted_from_get_available_kernels_10(
+                "Manual Intervention Required: Failed to fetch available kernels."
+            )
         except Exception as e:
             self.log(f"Unexpected error fetching available kernels: {e}")
-            self.update_prepatch_report("Manual Intervention Required: Unexpected error while fetching available kernels.")
-            self.manualInterventionRequired = True
-            return []
+            return self._extracted_from_get_available_kernels_10(
+                "Manual Intervention Required: Unexpected error while fetching available kernels."
+            )
+
+    # TODO Rename this here and in `get_available_kernels`
+    def _extracted_from_get_available_kernels_10(self, arg0):
+        self.update_prepatch_report(arg0)
+        self.manualInterventionRequired = True
+        return []
 
     def get_kernelPackages(self):
         if self._kernelPackages:
@@ -337,18 +369,18 @@ class PrePatchCheck:
             if not kernel_packages:
                 self.log("No kernel packages available for update.")
                 return None
-            self.log("Kernel packages: {}".format(kernel_packages))
+            self.log(f"Kernel packages: {kernel_packages}")
             return kernel_packages
         except subprocess.CalledProcessError as e:
             self.log(f"Error fetching kernel packages: {e.stderr}")
-            self.manualInterventionRequired = True
-            self.failedFunctions.append('get_kernelPackages')
-            return None
+            return self._extracted_from_get_kernelPackages_15()
         except Exception as e:
             self.log(f"Unexpected error in get_kernelPackages: {e}")
-            self.manualInterventionRequired = True
-            self.failedFunctions.append('get_kernelPackages')
-            return None
+            return self._extracted_from_get_kernelPackages_15()
+
+    # TODO Rename this here and in `get_kernelPackages`
+    def _extracted_from_get_kernelPackages_15(self):
+        return self._extracted_from_get_rfmState_10('get_kernelPackages', None)
 
     def get_crowdstrikeVersion(self):
         self.log("Fetching CrowdStrike version")
@@ -360,10 +392,7 @@ class PrePatchCheck:
             return "CrowdStrike not installed"
 
         try:
-            result = subprocess.check_output(["/opt/CrowdStrike/falconctl", "-g", "--version"], universal_newlines=True)
-            crowdstrike_version = result.strip()
-            self.log("CrowdStrike version: {}".format(crowdstrike_version))
-            return crowdstrike_version
+            return self._extracted_from_get_crowdstrikeVersion_11('CrowdStrike version: ')
         except subprocess.CalledProcessError as e:
             self.log(f"Error fetching CrowdStrike version. Error: {e.stderr}")
             self.log("Checking if the CrowdStrike service is running.")
@@ -379,25 +408,39 @@ class PrePatchCheck:
                     self.log("CrowdStrike service started successfully.")
                     time.sleep(2)  # Wait for 2 seconds before trying to fetch the version again
                 except subprocess.CalledProcessError as e:
-                    self.log(f"Failed to start CrowdStrike service. Error: {e.stderr}")
-                    self.update_prepatch_report("Manual remediation - Failed to start CrowdStrike service")
-                    return "CrowdStrike error"
-
+                    return self._extracted_from_get_crowdstrikeVersion_27(
+                        'Failed to start CrowdStrike service. Error: ',
+                        e,
+                        "Manual remediation - Failed to start CrowdStrike service",
+                    )
             # Try to fetch the CrowdStrike version again
             try:
-                result = subprocess.check_output(["/opt/CrowdStrike/falconctl", "-g", "--version"], universal_newlines=True)
-                crowdstrike_version = result.strip()
-                self.log("CrowdStrike version after service restart: {}".format(crowdstrike_version))
-                return crowdstrike_version
+                return self._extracted_from_get_crowdstrikeVersion_11(
+                    'CrowdStrike version after service restart: '
+                )
             except subprocess.CalledProcessError as e:
-                self.log("Error fetching CrowdStrike version even after restarting the service. Error: {}".format(e.stderr))
-                self.update_prepatch_report("Manual remediation - Crowdstrike Error")
-                return "CrowdStrike error"
-
+                return self._extracted_from_get_crowdstrikeVersion_27(
+                    'Error fetching CrowdStrike version even after restarting the service. Error: ',
+                    e,
+                    "Manual remediation - Crowdstrike Error",
+                )
         except Exception as e:
             self.log(f"Unexpected error in get_crowdstrikeVersion: {e}")
             self.update_prepatch_report("Manual remediation - Unexpected error in get_crowdstrikeVersion")
             return "CrowdStrike error"
+
+    # TODO Rename this here and in `get_crowdstrikeVersion`
+    def _extracted_from_get_crowdstrikeVersion_27(self, arg0, e, arg2):
+        self.log(f"{arg0}{e.stderr}")
+        self.update_prepatch_report(arg2)
+        return "CrowdStrike error"
+
+    # TODO Rename this here and in `get_crowdstrikeVersion`
+    def _extracted_from_get_crowdstrikeVersion_11(self, arg0):
+        result = subprocess.check_output(["/opt/CrowdStrike/falconctl", "-g", "--version"], universal_newlines=True)
+        crowdstrike_version = result.strip()
+        self.log(f"{arg0}{crowdstrike_version}")
+        return crowdstrike_version
 
     def get_rfmState(self):
         if not self._crowdstrikeVersion:  # Check if CrowdStrike version was fetched successfully
@@ -419,9 +462,13 @@ class PrePatchCheck:
             return rfm_state
         except CriticalSubprocessError:
             self.log("Error fetching RFM state. Check if CrowdStrike is properly installed and running.")
-            self.manualInterventionRequired = True
-            self.failedFunctions.append('get_rfmState')
-            return "Error"
+            return self._extracted_from_get_rfmState_10('get_rfmState', "Error")
+
+    # TODO Rename this here and in `get_instanceId`, `_extracted_from_get_kernelPackages_15` and `get_rfmState`
+    def _extracted_from_get_rfmState_10(self, arg0, arg1):
+        self.manualInterventionRequired = True
+        self.failedFunctions.append(arg0)
+        return arg1
 
     def dry_run_patch(self):
         self.log("Starting dry-run for kernel update")
@@ -466,7 +513,7 @@ class PrePatchCheck:
         self.log("Generating report")
 
         # Determine the QC Pass status
-        qc_pass_status = "PASS" if not self.manualInterventionRequired else f"FAIL on {', '.join(self.failedFunctions)}"
+        qc_pass_status = f"FAIL on {', '.join(self.failedFunctions)}" if self.manualInterventionRequired else "PASS"
 
         with open(self.prePatchReportFilepath, 'w', newline='') as f:
             writer = csv.writer(f)
@@ -502,8 +549,8 @@ if __name__ == "__main__":
     check = PrePatchCheck(changeNumber)
 
     rfm_state = check.get_rfmState()
-    if rfm_state != "RFM True":
-        if check.dry_run_patch():
-            check.stage_patch_script()
-    else:
+    if rfm_state == "RFM True":
         check.log("Skipping dry_run_patch due to RFM state being True.")
+
+    elif check.dry_run_patch():
+        check.stage_patch_script()
