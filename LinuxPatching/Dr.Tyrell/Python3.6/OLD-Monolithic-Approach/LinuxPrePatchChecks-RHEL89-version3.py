@@ -182,9 +182,7 @@ class PrePatchCheck:
 
     # TODO Rename this here and in `load_config`
     def _extracted_from_load_config_10(self, arg0, arg1):
-        self.log(arg0)
-        self.update_prepatch_report(arg1)
-        self.manualInterventionRequired = True
+        self._extracted_from_get_rfmState_2(arg0, arg1)
 
     def setup_logging_and_output_paths(self):
         self.outputDirectory = os.path.join("/root", self.changeNumber)
@@ -455,14 +453,21 @@ class PrePatchCheck:
             self.log(f"RFM state: {rfm_state}")
 
             if rfm_state == "True":  # Check if RFM state is True
-                self.log("RFM state is True. Kernel is out of alignment with Crowdstrike.")
-                self.update_prepatch_report("Manual Remediation - Kernel out of alignment with Crowdstrike. RFM state True")
-                self.manualInterventionRequired = True
+                self._extracted_from_get_rfmState_2(
+                    "RFM state is True. Kernel is out of alignment with Crowdstrike.",
+                    "Manual Remediation - Kernel out of alignment with Crowdstrike. RFM state True",
+                )
                 return "RFM True"
             return rfm_state
         except CriticalSubprocessError:
             self.log("Error fetching RFM state. Check if CrowdStrike is properly installed and running.")
             return self._extracted_from_get_rfmState_10('get_rfmState', "Error")
+
+    # TODO Rename this here and in `_extracted_from_load_config_10` and `get_rfmState`
+    def _extracted_from_get_rfmState_2(self, arg0, arg1):
+        self.log(arg0)
+        self.update_prepatch_report(arg1)
+        self.manualInterventionRequired = True
 
     # TODO Rename this here and in `get_instanceId`, `_extracted_from_get_kernelPackages_15` and `get_rfmState`
     def _extracted_from_get_rfmState_10(self, arg0, arg1):
