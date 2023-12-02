@@ -1,14 +1,14 @@
 #!/bin/bash
 
 INSTALLTO="/opt/rackspace"
-INSTALLERURL='https://bftxmgmt-20200710.s3.us-west-2.amazonaws.com/splunk-linux-tgz-RAX.tgz'
+INSTALLERURL='{Link to Splunk installer}'
 INSTALLFILE="splunk-linux-tgz-RAX.tgz"
 APPS_DIR="$INSTALLTO/splunkforwarder/etc/apps"
 CONFIG_DIR="$APPS_DIR/txdir_deploymentclient/local"
 MGMT_PORT_DIR="$INSTALLTO/splunkforwarder/etc/apps/txdir_mgmt_port"
 
 # Splunk endpoint URL
-SPLUNK_ENDPOINT="vpce-0b77d686cfa4ec333-xrgzidjy-us-gov-east-1a.vpce-svc-0d98c95a18f03f99b.us-gov-east-1.vpce.amazonaws.com"
+SPLUNK_ENDPOINT="{VPCEndpoint or IPv4 address}"
 
 # Creating structure
 rm -Rf "$INSTALLTO" && mkdir -p "$INSTALLTO"
