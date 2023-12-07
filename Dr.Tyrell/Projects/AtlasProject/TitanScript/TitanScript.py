@@ -10,6 +10,7 @@ import time
 import requests
 import urllib.request
 import csv
+import pandas as pd
 
 class ConfigurationManagement:
     def __init__(self, config_url):
@@ -50,6 +51,39 @@ class ConfigurationManagement:
         The actual implementation will depend on the Logging and Error Handling Class.
         """
         logging.er
+        
+class ReportingClass:
+    def __init__(self, report_data):
+        self.report_data = report_data
+
+    def generate_csv_report(self, filename):
+        try:
+            with open(filename, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(self.report_data.keys())
+                writer.writerow(self.report_data.values())
+            return True
+        except Exception as e:
+            logging.error(f"Error generating CSV report: {e}")
+            return False
+
+    def generate_json_report(self, filename):
+        try:
+            with open(filename, 'w') as file:
+                json.dump(self.report_data, file)
+            return True
+        except Exception as e:
+            logging.error(f"Error generating JSON report: {e}")
+            return False
+
+    def generate_html_report(self, filename):
+        try:
+            df = pd.DataFrame([self.report_data])
+            df.to_html(filename, index=False)
+            return True
+        except Exception as e:
+            logging.error(f"Error generating HTML report: {e}")
+            return False
 
 class LoggingAndErrorHandling:
     def __init__(self, log_file_path):
