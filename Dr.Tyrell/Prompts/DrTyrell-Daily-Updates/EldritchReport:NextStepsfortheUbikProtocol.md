@@ -4,7 +4,7 @@ Certainly! Here's an addition to the Eldritch Report, outlining the next steps f
 
 # Eldritch Report: Next Steps for the Ubik Protocol
 
-## Date: [Current Date]
+## Date: 06-12-2023
 
 ### Introduction
 This section of the Eldritch Report outlines the proposed next steps for the Ubik Protocol, focusing on expanding the base instruction sets for the Valis Coordinator (VC). These enhancements are designed to further equip the VC with advanced skills and knowledge, particularly in communication and coding proficiency, essential for managing diverse projects, including the Ubik Protocol.
