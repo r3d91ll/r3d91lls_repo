@@ -98,38 +98,29 @@ class Sanitizer:
 
     def sanitize(self, input_file, json_file):
         """ Sanitize sensitive information in the input file. """
-        if not os.path.exists(input_file):
-            logging.error(f"Input file {input_file} does not exist.")
+        input_string = self.read_file(input_file)
+        if input_string is None:
             return None
 
         sanitized_info = {}
-        pattern_to_placeholder_map = {}
+        value_to_placeholder_map = {}  # Map to track already encountered values
 
-        try:
-            with open(input_file, 'r') as file:
-                input_string = file.read()
+        for pattern, replacement in self.patterns.items():
+            for item in pattern.findall(input_string):
+                if item not in value_to_placeholder_map:
+                    # If the item is new, create a new placeholder
+                    placeholder = f'{{{replacement}{len(sanitized_info)}}}'
+                    sanitized_info[placeholder] = item
+                    value_to_placeholder_map[item] = placeholder
+                else:
+                    # If the item is already encountered, reuse its placeholder
+                    placeholder = value_to_placeholder_map[item]
 
-            for pattern, replacement in self.patterns.items():
-                for match in pattern.findall(input_string):
-                    for item in match:
-                        if item and item not in pattern_to_placeholder_map:
-                            placeholder = '{' + replacement + str(len(sanitized_info)) + '}'
-                            sanitized_info[placeholder] = item
-                            pattern_to_placeholder_map[item] = placeholder
-                            input_string = input_string.replace(item, placeholder)
+                input_string = input_string.replace(item, placeholder)
 
-            if os.path.exists(json_file):
-                logging.warning(f"JSON file {json_file} already exists and will be overwritten.")
-
-            with open(json_file, 'w') as file:
-                json.dump(sanitized_info, file)
-
-        except IOError as e:
-            logging.error(f"Error in file operation: {e}")
-            return None
-
+        self.write_file(json_file, json.dumps(sanitized_info))
         return input_string
-    
+
     def reverse(self, input_file, json_file):
         """ Reverse the sanitization process using the JSON file. """
         if not os.path.exists(json_file):
