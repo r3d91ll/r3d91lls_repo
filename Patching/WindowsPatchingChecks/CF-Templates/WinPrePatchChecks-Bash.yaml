@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  PatchCheckSSMDocument:
+    Type: 'AWS::SSM::Document'
+    Properties:
+      Content:
+        schemaVersion: '2.2'
+        description: 'SSM Document for Windows pre-patch checks'
+        parameters:
+          ChangeNumber:
+            type: 'String'
+            description: 'Parameter for change number'
+        mainSteps:
+          - action: 'aws:RunPowerShellScript'
+            name: 'RunPowerShellScript'
+            inputs:
+              runCommand:
+                - |
+                  # Function to check if a specific event ID exists in the system event logs
+                  function CheckEventLogEventIDExists {
+                      param(
+                          [string]$logName,
+                          [int]$eventID,
+                          [int]$lastDays
+                      )
+                      $cutoffDate = (Get-Date).AddDays(-$lastDays)
+                      $eventExists = Get-WinEvent -LogName $logname | Where-Object { $_.Id -eq $eventID -and $_.TimeCreated -ge (Get-Date).AddDays(-30) }
+                      return [bool]($eventExists -ne $null)
+                  }
+
+                  # Function to check if the system was rebooted in the last 30 days
+                  function CheckSystemReboot {
+                      $lastBootTime = Get-CimInstance -ClassName Win32_OperatingSystem | Select-Object -ExpandProperty LastBootUpTime
+                      $cutoffDate = (Get-Date).AddDays(-30)
+                      return [bool]($lastBootTime -gt $cutoffDate)
+                  }
+
+                  # Function to check if C: drive has more than 20GB available space
+                  function CheckDiskSpace {
+                      $drive = Get-WmiObject -Query "SELECT * FROM Win32_LogicalDisk WHERE DeviceID='C:'"
+                      $freeSpaceGB = [math]::Round($drive.FreeSpace / 1GB, 2)
+                      return [bool]($freeSpaceGB -gt 20)
+                  }
+
+                  # Check conditions and report Yes or No
+                  $eventID2004Exists = CheckEventLogEventIDExists -logName "System" -eventID 2004 -lastDays $cutoffDate
+                  $eventID19Exists = CheckEventLogEventIDExists -logName "System" -eventID 19 -lastDays $cutoffDate
+                  $systemRebooted = CheckSystemReboot
+                  $diskSpaceGreaterThan20GB = CheckDiskSpace
+
+                  Write-Host "1. Were there resource exhaustion warnings in the last 30 days (Event ID 2004 exists)? $eventID2004Exists"
+                  Write-Host "2. Were Windows updates installed in the last 30 days (Event ID 19 exists)? $eventID19Exists"
+                  Write-Host "3. Was the System Rebooted in the Last 30 Days? $systemRebooted"
+                  Write-Host "4. Does the C: Drive have more than 20GB Available Space? $diskSpaceGreaterThan20GB"
+      DocumentType: 'Command'
+      Name: 'WinPrePatchChecks'
+

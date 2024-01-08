@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  PatchCheckSSMDocument:
+    Type: 'AWS::SSM::Document'
+    Properties:
+      Content:
+        schemaVersion: '2.2'
+        description: 'SSM Document for Linux pre-patch checks'
+        parameters:
+          ChangeNumber:
+            type: 'String'
+            description: 'Parameter for change number'
+        mainSteps:
+          - action: 'aws:runShellScript'
+            name: 'runShellScript'
+            inputs:
+              runCommand:
+                - |
+                  #!/bin/bash
+                  ChangeNumber="{{ChangeNumber}}"
+                  timestamp=$(date +"%Y%m%d%H%M%S")
+                  outputDir="/root/$ChangeNumber"
+                  kernelPackageFile="${outputDir}/kernel_packages_${ChangeNumber}_${timestamp}"
+                  reportFile="${outputDir}/pre-patch.report_${timestamp}"
+                  # Check if output directory exists, if not create it
+                  if [ ! -d "$outputDir" ]; then
+                      /bin/mkdir -p "$outputDir" || { echo "Failed to create directory ${outputDir}"; exit 1; }
+                  fi
+                  cd "$outputDir" || { echo "Failed to change to directory ${outputDir}"; exit 1; }
+                  /usr/bin/yum clean all -q
+                  /usr/bin/yum makecache -q                  
+                  echo "$HOSTNAME repolist" >> "$reportFile" || { echo "Failed to write to ${reportFile}"; exit 1; }
+                  /usr/bin/yum -v repolist | /bin/grep Repo-id | /usr/bin/cut -d ":" -f2 >> "$reportFile" || { echo "Failed to execute command"; exit 1; }
+                  echo "$HOSTNAME repolist end" >> "$reportFile"                  
+                  echo "Available Kernels" >> "$reportFile"
+                  /usr/bin/yum list kernel --showduplicates | /usr/bin/tail -n5 >> "$reportFile" || { echo "Failed to execute command"; exit 1; }
+                  echo "Available Kernels End" >> "$reportFile"                  
+                  echo "Currently running kernel version is: $(/bin/uname -r)" >> "$reportFile"                  
+                  /usr/bin/yum list updates 'kernel*' | /usr/bin/grep ^kernel | /usr/bin/cut -d. -f1 > "$kernelPackageFile"
+                  if [ -x /opt/CrowdStrike/falconctl ]; then
+                      echo "Current CrowdStrike version is: $(/opt/CrowdStrike/falconctl -g --version)" >> "$reportFile"
+                      echo "Current CrowdStrike RMF-Status is: $(/opt/CrowdStrike/falconctl -g --rfm-state)" >> "$reportFile"
+                  else
+                      echo "CrowdStrike is not installed or not accessible" >> "$reportFile"
+                  fi                  
+                  echo "Kernel packages installed" >> "$reportFile"
+                  /bin/cat "$kernelPackageFile" >> "$reportFile"
+                  echo "Kernel packages installed end" >> "$reportFile"
+                  echo "Yum Transaction Test" >> "$reportFile"
+                  yum --security --assumeno update --disablerepo=Artifa* | grep -A1 "Your transaction was saved, rerun it with:"
+                  if [ $? -eq 0 ]; then
+                      echo "Yum Transactions Good To Go" >> "$reportFile"
+                  else
+                      echo "Yum Transactions Test Failed" >> "$reportFile"
+                  fi
+                  /bin/cat "$reportFile"
+      DocumentType: 'Command'
+      Name: 'LinuxPrePatchChecks'
+

@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  PatchCheckSSMDocument:
+    Type: 'AWS::SSM::Document'
+    Properties:
+      Content:
+        schemaVersion: '2.2'
+        description: 'SSM Document for Linux pre-patch checks'
+        parameters:
+          ChangeNumber:
+            type: 'String'
+            description: 'Parameter for change number'
+        mainSteps:
+          - action: 'aws:runShellScript'
+            name: 'runShellScript'
+            inputs:
+              runCommand:
+                - |
+                #!/usr/bin/env python
+                import os
+                import subprocess
+                import datetime
+                import logging
+
+                # Debug mode switch
+                DEBUG_MODE = False
+
+                def run_command(command):
+                    try:
+                        result = subprocess.Popen(command, stdout=subprocess.PIPE,
+                                                stderr=subprocess.PIPE, shell=True,
+                                                universal_newlines=True)
+                        stdout, stderr = result.communicate()
+                        return stdout.strip(), stderr.strip()
+                    except Exception as e:
+                        logging.error("An error occurred while executing command '{}': {}".format(command, str(e)))
+                        return None, None
+
+                def format_output(command, stdout, stderr):
+                    if stderr:
+                        return stderr
+                    else:
+                        if command == "/usr/bin/yum clean all -q":
+                            return "Yes"
+                        elif command == "/usr/bin/yum makecache -q":
+                            return "Success"
+                        elif command == "/usr/bin/yum -v repolist | /bin/grep Repo-id | /usr/bin/cut -d ':' -f2":
+                            return " ".join(stdout.split())
+                        elif command == "/usr/bin/yum list kernel --showduplicates | /usr/bin/tail -n5":
+                            kernels = [line.split()[1] for line in stdout.split("\n")]
+                            return " ".join(kernels)
+                        elif command == "/bin/uname -r":
+                            return stdout
+                        elif command == "/usr/bin/yum list updates 'kernel*' | /usr/bin/grep ^kernel | /usr/bin/cut -d. -f1":
+                            return " ".join(stdout.split())
+                        elif command == "/opt/CrowdStrike/falconctl -g --version":
+                            return stdout.split('=')[1].strip()
+                        elif command == "/opt/CrowdStrike/falconctl -g --rfm-state":
+                            return stdout.split('=')[1].strip()
+                        elif command == "yum --security --assumeno update --disablerepo=Artifa* | grep -A1 'Your transaction was saved, rerun it with:'":
+                            return "Clean"
+                        elif command == "curl -s http://169.254.169.254/latest/meta-data/instance-id":
+                            return stdout
+                        return stdout
+
+                def main():
+                    # Set up logging
+                    logging.basicConfig(filename='my_script.log',
+                                        level=logging.DEBUG if DEBUG_MODE else logging.INFO)
+                    logging.getLogger().addHandler(logging.StreamHandler())  # Print logs to console
+
+                    try:
+                        change_number = os.getenv('ChangeNumber', 'DEFAULT_CHANGE_NUMBER')
+                        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+                        output_dir = "/root/{}".format(change_number)
+                        report_file = "{}/pre-patch.report_{}".format(output_dir, timestamp)
+
+                        # Ensure output directory exists
+                        if not os.path.exists(output_dir):
+                            os.makedirs(output_dir)
+                    except Exception as e:
+                        logging.error("An error occurred while setting up: {}".format(str(e)))
+                        return
+
+                    commands = [
+                        # Get Instance ID
+                        "curl -s http://169.254.169.254/latest/meta-data/instance-id",
+
+                        # Clean and update yum
+                        "/usr/bin/yum clean all -q",
+                        "/usr/bin/yum makecache -q",
+
+                        # Get Repo List
+                        "/usr/bin/yum -v repolist | /bin/grep Repo-id | /usr/bin/cut -d ':' -f2",
+
+                        # List available kernels
+                        "/usr/bin/yum list kernel --showduplicates | /usr/bin/tail -n5",
+
+                        # Get running kernel version
+                        "/bin/uname -r",
+
+                        # Get kernel update packages
+                        "/usr/bin/yum list updates 'kernel*' | /usr/bin/grep ^kernel | /usr/bin/cut -d. -f1",
+
+                        # Check CrowdStrike version and state
+                        "/opt/CrowdStrike/falconctl -g --version",
+                        "/opt/CrowdStrike/falconctl -g --rfm-state",
+
+                        # Check yum security updates
+                        "yum --security --assumeno update --disablerepo=Artifa* | grep -A1 'Your transaction was saved, rerun it with:'",
+                    ]
+
+                    try:
+                        results = []
+                        for command in commands:
+                            if DEBUG_MODE:
+                                logging.debug("Command: {}".format(command))
+                            stdout, stderr = run_command(command)
+                            output = format_output(command, stdout, stderr)
+                            results.append(output)
+
+                            if DEBUG_MODE:
+                                logging.debug("Output:\n{}".format(output))
+                                logging.debug("Error:\n{}".format(stderr))
+
+                        with open(report_file, 'w') as report_file_handle:
+                            report_file_handle.write(",".join(results))
+                            report_file_handle.write("\n")
+
+                        # Display the content of the output file
+                        if os.path.exists(report_file):
+                            with open(report_file, 'r') as report_file_handle:
+                                print(report_file_handle.read())
+                        else:
+                            logging.error("Output file '{}' does not exist.".format(report_file))
+                    except Exception as e:
+                        logging.error("An error occurred while writing the report file: {}".format(str(e)))
+
+                if __name__ == '__main__':
+                    main()
+                      
+                  # End of the modified script
+      DocumentType: 'Command'
+      Name: 'LinuxPrePatchChecks'

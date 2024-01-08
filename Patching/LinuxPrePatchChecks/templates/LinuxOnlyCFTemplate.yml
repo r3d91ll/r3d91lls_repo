@@ -1,0 +1,154 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: QualysPatchingTestingEnvironment
+
+Resources:
+
+  RHEL7Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: 'ami-0e5add82a03aa5caf'
+      InstanceType: 't3.micro'
+      KeyName: 'Todd-SSH-Key'
+      IamInstanceProfile: 'AmazonSSMRoleForInstancesQuickSetup'
+      NetworkInterfaces:
+      - DeviceIndex: '0'
+        SubnetId: 'subnet-07eadcb4a8af5c510'
+        AssociatePublicIpAddress: 'false'
+        GroupSet:
+          - 'sg-067bc1c22f410ead3'
+      Tags:
+        - Key: 'Name'
+          Value: 'RHEL7-Qualys-test'
+
+  RHEL8Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: 'ami-0614f07c2c581f7c1'
+      InstanceType: 't3.micro'
+      KeyName: 'Todd-SSH-Key'
+      IamInstanceProfile: 'AmazonSSMRoleForInstancesQuickSetup'
+      NetworkInterfaces:
+      - DeviceIndex: '0'
+        SubnetId: 'subnet-07eadcb4a8af5c510'
+        AssociatePublicIpAddress: 'false'
+        GroupSet:
+          - 'sg-067bc1c22f410ead3'
+      Tags:
+        - Key: 'Name'
+          Value: 'RHEL8-Qualys-test'
+
+  AL2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: 'ami-0aa0e9dbd91e7d9de'
+      InstanceType: 't3.micro'
+      KeyName: 'Todd-SSH-Key'
+      IamInstanceProfile: 'AmazonSSMRoleForInstancesQuickSetup'
+      NetworkInterfaces:
+      - DeviceIndex: '0'
+        SubnetId: 'subnet-07eadcb4a8af5c510'
+        AssociatePublicIpAddress: 'false'
+        GroupSet:
+          - 'sg-067bc1c22f410ead3'
+      Tags:
+        - Key: 'Name'
+          Value: 'AL2-Qualys-test'
+
+  Ubuntu2004Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: 'ami-065355f9af0cc6efc'
+      InstanceType: 't3.micro'
+      KeyName: 'Todd-SSH-Key'
+      IamInstanceProfile: 'AmazonSSMRoleForInstancesQuickSetup'
+      NetworkInterfaces:
+      - DeviceIndex: '0'
+        SubnetId: 'subnet-07eadcb4a8af5c510'
+        AssociatePublicIpAddress: 'false'
+        GroupSet:
+          - 'sg-067bc1c22f410ead3'
+      Tags:
+        - Key: 'Name'
+          Value: 'Ubuntu2004-Qualys-test'
+
+  Windows2019Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: 'ami-0f7f88e6ac9f20737'
+      InstanceType: 't3.micro'
+      KeyName: 'Todd-SSH-Key'
+      IamInstanceProfile: 'AmazonSSMRoleForInstancesQuickSetup'
+      UserData:
+        Fn::Base64: !Sub |
+          $SSMAgentUrl = "https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/windows_amd64/AmazonSSMAgentSetup.exe"
+          $SSMInstallerPath = "$env:TEMP\AmazonSSMAgentSetup.exe"
+          Invoke-WebRequest -Uri $SSMAgentUrl -OutFile $SSMInstallerPath
+          Start-Process -FilePath $SSMInstallerPath -ArgumentList "/quiet /norestart" -Wait
+          Remove-Item -Path $SSMInstallerPath -Force
+          Start-Service AmazonSSMAgent
+      NetworkInterfaces:
+      - DeviceIndex: '0'
+        SubnetId: 'subnet-07eadcb4a8af5c510'
+        AssociatePublicIpAddress: 'false'
+        GroupSet:
+          - 'sg-067bc1c22f410ead3'
+      Tags:
+        - Key: 'Name'
+          Value: 'Windows2019-Qualys-test'
+
+  Windows2022Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: 'ami-0df5c32cf0487ab5b'
+      InstanceType: 't3.micro'
+      KeyName: 'Todd-SSH-Key'
+      IamInstanceProfile: 'AmazonSSMRoleForInstancesQuickSetup'
+      UserData:
+        Fn::Base64: !Sub |
+          $SSMAgentUrl = "https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/windows_amd64/AmazonSSMAgentSetup.exe"
+          $SSMInstallerPath = "$env:TEMP\AmazonSSMAgentSetup.exe"
+          Invoke-WebRequest -Uri $SSMAgentUrl -OutFile $SSMInstallerPath
+          Start-Process -FilePath $SSMInstallerPath -ArgumentList "/quiet /norestart" -Wait
+          Remove-Item -Path $SSMInstallerPath -Force
+          Start-Service AmazonSSMAgent
+          Get-Service AmazonSSMAgent
+          $BFAgentUrl = "https://bftxmgmt-20200710.s3-us-west-2.amazonaws.com/prod-BigFixAgent.msi"
+          $BFInstallerPath = "$env:TEMP\BigFixSetup.exe"
+          Invoke-WebRequest -Uri $BFAgentUrl -OutFile $BFInstallerPath
+          Start-Process -FilePath $BFInstallerPath -ArgumentList "/quiet /norestart" -Wait
+          Remove-Item -Path $BFInstallerPath -Force
+          Start-Service BESClient
+      NetworkInterfaces:
+      - DeviceIndex: '0'
+        SubnetId: 'subnet-07eadcb4a8af5c510'
+        AssociatePublicIpAddress: 'false'
+        GroupSet:
+          - 'sg-067bc1c22f410ead3'
+      Tags:
+        - Key: 'Name'
+          Value: 'Windows2022-Qualys-test'
+
+Outputs:
+  RHEL7InstanceID:
+    Description: "Instance ID for RHEL 7"
+    Value: !Ref RHEL7Instance
+
+  RHEL8InstanceID:
+    Description: "Instance ID for RHEL 8"
+    Value: !Ref RHEL8Instance
+
+  AL2InstanceID:
+    Description: "Instance ID for Amazon Linux 2"
+    Value: !Ref AL2Instance
+
+  Ubuntu2004InstanceID:
+    Description: "Instance ID for Ubuntu 20.04"
+    Value: !Ref Ubuntu2004Instance
+
+  Windows2019InstanceID:
+    Description: "Instance ID for Windows 2019"
+    Value: !Ref Windows2019Instance
+
+  Windows2022InstanceID:
+    Description: "Instance ID for Windows 2022"
+    Value: !Ref Windows2022Instance
