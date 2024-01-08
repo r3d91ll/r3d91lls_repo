@@ -9,7 +9,7 @@ class NoStopFileProcessor:
         self.mode = mode
         self.stop_words = set(stopwords.words('english'))
         if mode == 'BooleanFree':
-            self.excluded_words = {'and', 'or', 'not'}
+            self.excluded_words = {'and', 'or', 'not', 'if', 'else', 'while', 'for', 'in', 'true', 'false', 'none'}
             self.stop_words -= self.excluded_words
         else:
             self.excluded_words = set()
