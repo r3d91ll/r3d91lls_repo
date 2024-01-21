@@ -36,7 +36,7 @@ RUN apt-get update && \
 WORKDIR /usr/src/app
 
 # Virtual Environment and Package Installation
-RUN python3.10 -m virtualenv autogen_env && \
+RUN python3 -m virtualenv autogen_env && \
     pip install --upgrade pip && \
     pip install pyautogen
 
