@@ -1,3 +1,0 @@
-#!/bin/bash
-newkernel="3.10.0-1160.90.1.el7"
-yum -y install $(while read p; do printf "$p-$newkernel "; done < /root/{ChangeNumber}/kernel_packages_${ChangeNumber}_${timestamp})
