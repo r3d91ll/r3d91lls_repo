@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+## This version is for the ASRock AB350 K1
+
 # Path to the hwmon device and fan control file
 hwmon_path="/sys/class/hwmon/hwmon1"
 fan_control_file="$hwmon_path/pwm5"
