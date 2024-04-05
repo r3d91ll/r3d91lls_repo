@@ -1,5 +1,3 @@
-Sure! Here are the instructions for setting up the fan control script for the Nvidia P40 GPU on an Asus Rog Strix B550-XE Gaming WiFi motherboard:
-
 **Hardware Requirements:**
 - Asus Rog Strix B550-XE Gaming WiFi motherboard
 - Nvidia P40 GPU
