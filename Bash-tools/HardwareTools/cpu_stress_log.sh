@@ -37,7 +37,8 @@ while [ $(ps -p $STRESS_PID -o comm=) ] || [ $(ps -p $GPU_BURN_PID -o comm=) ]; 
     # Calculate power usage in watts
     current_energy=$(cat /sys/class/powercap/intel-rapl:0/energy_uj)
     energy_diff=$((current_energy - prev_energy))
-    power_usage_watts=$(echo "scale=2; $energy_diff / 1000000" | bc)
+    time_interval=2 # Assuming a sleep interval of 2 seconds
+    power_usage_watts=$(echo "scale=2; $energy_diff / 1000000 / $time_interval" | bc)
     prev_energy=$current_energy
 
     # Log CPU metrics with power usage
