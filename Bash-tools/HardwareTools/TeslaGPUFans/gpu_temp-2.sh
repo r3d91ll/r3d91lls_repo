@@ -8,26 +8,22 @@ MAX_TEMP=85
 MIN_PWM=0
 MAX_PWM=255
 
-# PWM control file and fan speed file
+# PWM control file
 PWM_FILE="/sys/class/hwmon/hwmon2/pwm1"
 FAN_SPEED_FILE="/sys/class/hwmon/hwmon2/fan1_input" # Adjust based on your system
 PWM_ENABLE_FILE="/sys/class/hwmon/hwmon2/pwm1_enable"
-GPU_POWER=$(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits --id=1)
 
 # Log file
 LOG_FILE="/var/log/gpu_temp.log"
-
-# Write CSV header to log file
-echo "date,cpu_temp,fan_speed,pwm_value,gpu_power" | sudo tee -a $LOG_FILE
 
 # Function to set PWM control mode
 set_pwm_control_mode() {
     local mode=$1
     echo $mode | sudo tee $PWM_ENABLE_FILE > /dev/null
     if [ $? -ne 0 ]; then
-        echo "$(date +%Y-%m-%d-%H:%M:%S),NA,NA,NA - Failed to set PWM control mode to $mode" | sudo tee -a $LOG_FILE
+        echo "$(date) - Failed to set PWM control mode to $mode" | sudo tee -a $LOG_FILE
     else
-        echo "$(date +%Y-%m-%d-%H:%M:%S),NA,NA,NA - PWM control mode set to $mode" | sudo tee -a $LOG_FILE
+        echo "$(date) - PWM control mode set to $mode" | sudo tee -a $LOG_FILE
     fi
 }
 
@@ -38,11 +34,8 @@ if [ "$current_mode" != "1" ]; then
 fi
 
 while true; do
-    # Refresh GPU temperature
-    GPU_TEMP=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits --id=1)
-    
-    # Refresh GPU power draw
-    GPU_POWER=$(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits --id=1)
+    # Get GPU temperature
+    GPU_TEMP=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader --id=1)
     
     # Read current fan speed in RPM
     FAN_SPEED=$(cat $FAN_SPEED_FILE)
@@ -61,11 +54,13 @@ while true; do
 
     # Write the calculated PWM value to the fan control
     echo $PWM_VALUE | sudo tee $PWM_FILE > /dev/null
-
-    # Log the date, GPU temp, fan speed, PWM value, and GPU power in CSV format
-    echo "$(date +%Y-%m-%d-%H:%M:%S),$GPU_TEMP,$FAN_SPEED,$PWM_VALUE,$GPU_POWER" | sudo tee -a $LOG_FILE
+    if [ $? -ne 0 ]; then
+        echo "$(date) - Failed to write PWM value to $PWM_FILE" | sudo tee -a $LOG_FILE
+    else
+        echo "$(date) - PWM value set to $PWM_VALUE, Fan Speed: $FAN_SPEED RPM" | sudo tee -a $LOG_FILE
+    fi
 
     # Wait for a short interval before the next iteration
-    sleep 2
+    sleep 5
 done
 
